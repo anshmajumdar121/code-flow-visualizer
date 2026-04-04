@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ansh Majumdar - Code Visualizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #14141a 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            padding: 1rem 2rem;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #a0a0b0;
+            text-decoration: none;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover {
+            color: #8b5cf6;
+        }
+
+        .btn-outline {
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(139, 92, 246, 0.5);
+            border-radius: 8px;
+            background: transparent;
+            color: #8b5cf6;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-outline:hover {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: #8b5cf6;
+        }
+
+        .btn-primary {
+            padding: 0.5rem 1.5rem;
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 120px 2rem 80px;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.5);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #a78bfa;
+            margin-bottom: 1rem;
+        }
+
+        /* How It Works Section */
+        .how-it-works {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 2rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, #ffffff, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .step-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(139, 92, 246, 0.3);
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.1);
+        }
+
+        .step-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-desc {
+            color: #a0a0b0;
+            line-height: 1.6;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Payment Section */
+        .payment-section {
+            max-width: 600px;
+            margin: 4rem auto;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+        }
+
+        .qr-container {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .qr-box {
+            text-align: center;
+        }
+
+        .qr-placeholder {
+            width: 180px;
+            height: 180px;
+            background: white;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .upi-id {
+            font-family: monospace;
+            color: #a78bfa;
+            margin-top: 0.5rem;
+        }
+
+        /* Testimonials */
+        .testimonials {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 2rem;
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .testimonial-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .testimonial-text {
+            color: #a0a0b0;
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-author {
+            color: #8b5cf6;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 4rem;
+        }
+
+        .github-link {
+            color: #8b5cf6;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">⚡ Code-Visualizer</div>
+            <div class="nav-links">
+                <a href="#how-it-works">How it works</a>
+                <a href="#features">Features</a>
+                <a href="#testimonials">Testimonials</a>
+                <a href="#support">Support</a>
+                <a href="playground.html" class="btn-primary">Start visualizing</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <span class="hero-badge">⚡ Systems Thinker | Problem Solver | Builder</span>
+                <h1>Ansh Majumdar</h1>
+                <p style="color: #a0a0b0; font-size: 1.2rem; margin-bottom: 1rem;">
+                    Building scalable systems & data-driven solutions
+                </p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+                    <span class="step-desc" style="background: rgba(139,92,246,0.1); padding: 0.25rem 0.75rem; border-radius: 20px;">Python</span>
+                    <span class="step-desc" style="background: rgba(139,92,246,0.1); padding: 0.25rem 0.75rem; border-radius: 20px;">JavaScript</span>
+                    <span class="step-desc" style="background: rgba(139,92,246,0.1); padding: 0.25rem 0.75rem; border-radius: 20px;">TypeScript</span>
+                    <span class="step-desc" style="background: rgba(139,92,246,0.1); padding: 0.25rem 0.75rem; border-radius: 20px;">React</span>
+                    <span class="step-desc" style="background: rgba(139,92,246,0.1); padding: 0.25rem 0.75rem; border-radius: 20px;">Node.js</span>
+                    <span class="step-desc" style="background: rgba(139,92,246,0.1); padding: 0.25rem 0.75rem; border-radius: 20px;">Rust</span>
+                </div>
+                <div style="margin-top: 2rem;">
+                    <a href="playground.html" class="btn-primary" style="margin-right: 1rem;">Try Code Visualizer →</a>
+                    <a href="https://github.com/anshmajumdar121" target="_blank" class="btn-outline">GitHub Profile</a>
+                </div>
+            </div>
+            <div style="background: rgba(139, 92, 246, 0.1); border-radius: 24px; padding: 2rem; border: 1px solid rgba(139, 92, 246, 0.2);">
+                <pre style="color: #a78bfa; font-family: monospace; font-size: 0.9rem;">
+{
+  "developer": "Ansh Majumdar",
+  "focus": ["systems", "efficiency", "real-world impact"],
+  "minted": "build + break = analyze + rebuild better",
+  "currently": "designing scalable backends & data-driven systems",
+  "driven_by": "problems that actually matter"
+}
+                </pre>
+                <p style="margin-top: 1rem; color: #a0a0b0; font-style: italic;">
+                    "I don't just write code — I architect solutions. Every line has a purpose."
+                </p>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section id="how-it-works" class="how-it-works">
+            <h2 class="section-title">How Code-Visualizer Works</h2>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-icon">📝</div>
+                    <h3 class="step-title">1. Paste Code</h3>
+                    <p class="step-desc">Drop in Python, JavaScript, Java, C++, or pseudocode. Our parser automatically detects the language.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-icon">🔍</div>
+                    <h3 class="step-title">2. Parse & Layout</h3>
+                    <p class="step-desc">We build an AST (Abstract Syntax Tree) and generate a clean, readable flowchart automatically.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-icon">⚡</div>
+                    <h3 class="step-title">3. Explore Steps</h3>
+                    <p class="step-desc">Click any node to see variable state, step through execution, and understand the logic flow.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="how-it-works">
+            <h2 class="section-title">Everything You Need</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🌐</div>
+                    <h3>Multi-Language</h3>
+                    <p class="step-desc">Python, JavaScript, Java, C++, and more coming soon</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📐</div>
+                    <h3>Auto-Layout</h3>
+                    <p class="step-desc">No manual positioning. The graph stays readable always.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🐛</div>
+                    <h3>Step Debugger</h3>
+                    <p class="step-desc">Walk through loops and branches line by line.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📤</div>
+                    <h3>Export & Share</h3>
+                    <p class="step-desc">PNG, SVG, or a shareable link to send to teammates.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>Annotations</h3>
+                    <p class="step-desc">Add notes to any node to explain intent.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Secure by Default</h3>
+                    <p class="step-desc">Code is processed in-memory. Nothing stored unless you save.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials -->
+        <section id="testimonials" class="testimonials">
+            <h2 class="section-title">Loved by Learners</h2>
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"I finally understood recursion after seeing it as a diagram. This tool is a game-changer!"</p>
+                    <p class="testimonial-author">— Avery L., CS Student</p>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"My study group uses this to review algorithms every week. Way faster than drawing boxes."</p>
+                    <p class="testimonial-author">— Jordan P., Software Engineer</p>
+                </div>
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"Onboarding new developers is so much easier with visual flowcharts. Highly recommend!"</p>
+                    <p class="testimonial-author">— Sam T., Tech Lead</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Payment Section -->
+        <section id="support" class="payment-section">
+            <h2 style="margin-bottom: 1rem;">Support the Project</h2>
+            <p style="color: #a0a0b0; margin-bottom: 1rem;">Scan to contribute any amount — every contribution helps improve Code-Visualizer</p>
+            
+            <div class="qr-container">
+                <div class="qr-box">
+                    <div class="qr-placeholder">
+                        <svg width="160" height="160" viewBox="0 0 160 160">
+                            <rect width="160" height="160" fill="white" rx="8"/>
+                            <rect x="30" y="30" width="100" height="100" fill="black"/>
+                            <rect x="35" y="35" width="20" height="20" fill="white"/>
+                            <rect x="105" y="35" width="20" height="20" fill="white"/>
+                            <rect x="35" y="105" width="20" height="20" fill="white"/>
+                            <rect x="105" y="105" width="20" height="20" fill="white"/>
+                            <text x="50" y="145" fill="black" font-size="10" font-family="monospace">UPI QR</text>
+                        </svg>
+                    </div>
+                    <p class="upi-id">majumdar82@okhdfcbank</p>
+                </div>
+            </div>
+            
+            <p style="margin-top: 1rem;">📧 PayPal: <strong style="color: #a78bfa;">majumdar82@gmail.com</strong></p>
+            <p style="margin-top: 0.5rem; font-size: 0.75rem; color: #6b7280;">Your support keeps this project alive and free for everyone ❤️</p>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>Made with ❤️ by <strong>Ansh Majumdar</strong></p>
+        <div style="margin-top: 0.5rem;">
+            <a href="https://github.com/anshmajumdar121" target="_blank" class="github-link">
+                🔗 GitHub: github.com/anshmajumdar121
+            </a>
+        </div>
+        <p style="margin-top: 1rem; font-size: 0.75rem; color: #6b7280;">
+            © 2026 Code-Visualizer | Open Source | Free for everyone
+        </p>
+    </footer>
+</body>
+</html>
