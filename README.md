@@ -16,8 +16,6 @@
 ## 🌐 Live URL
 
 > **Landing Page:** https://anshmajumdar121.github.io/code-flow-visualizer/
->
-> **Visualizer App:** https://anshmajumdar121.github.io/code-flow-visualizer/playground.html
 
 ---
 
