@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="480" viewBox="0 0 400 480" style="background:#0d1117">
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#00e5ff"/>
+    </marker>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <style>
+      text { font-family: 'Courier New', monospace; }
+    </style>
+  </defs>
+  <!-- Background gradient -->
+  <rect width="400" height="480" fill="#0d1117" rx="14"/>
+  <rect width="400" height="480" fill="url(#bg)" rx="14" opacity="0.3"/>
+  <!-- Title -->
+  <text x="200" y="28" text-anchor="middle" fill="#8b949e" font-size="12">factorial(n) → flowchart</text>
+  <!-- START oval -->
+  <ellipse cx="200" cy="62" rx="56" ry="22" fill="none" stroke="#00ff88" stroke-width="2.5" filter="url(#glow)"/>
+  <text x="200" y="68" text-anchor="middle" fill="#00ff88" font-size="14" font-weight="bold">START</text>
+  <!-- Arrow down -->
+  <line x1="200" y1="84" x2="200" y2="116" stroke="#00e5ff" stroke-width="2" marker-end="url(#arr)"/>
+  <!-- CONDITION diamond -->
+  <polygon points="200,120 272,162 200,204 128,162" fill="none" stroke="#ff2d78" stroke-width="2.5" filter="url(#glow)"/>
+  <text x="200" y="157" text-anchor="middle" fill="#ff2d78" font-size="11" font-weight="bold">n &lt;= 1?</text>
+  <text x="200" y="173" text-anchor="middle" fill="#ff2d78" font-size="10">(condition)</text>
+  <!-- YES label left -->
+  <text x="95" y="168" text-anchor="middle" fill="#00ff88" font-size="11" font-weight="bold">YES</text>
+  <!-- NO label right -->
+  <text x="305" y="168" text-anchor="middle" fill="#a855f7" font-size="11" font-weight="bold">NO</text>
+  <!-- YES branch: left arrow -->
+  <line x1="128" y1="162" x2="72" y2="162" stroke="#00e5ff" stroke-width="2"/>
+  <line x1="72" y1="162" x2="72" y2="278" stroke="#00e5ff" stroke-width="2" marker-end="url(#arr)"/>
+  <!-- return 1 box -->
+  <rect x="24" y="278" width="96" height="40" rx="8" fill="#0d1117" stroke="#a855f7" stroke-width="2.5" filter="url(#glow)"/>
+  <text x="72" y="303" text-anchor="middle" fill="#a855f7" font-size="13" font-weight="bold">return 1</text>
+  <!-- NO branch: right arrow -->
+  <line x1="272" y1="162" x2="328" y2="162" stroke="#00e5ff" stroke-width="2"/>
+  <line x1="328" y1="162" x2="328" y2="278" stroke="#00e5ff" stroke-width="2" marker-end="url(#arr)"/>
+  <!-- return n*f(n-1) box -->
+  <rect x="260" y="278" width="136" height="52" rx="8" fill="#0d1117" stroke="#a855f7" stroke-width="2.5" filter="url(#glow)"/>
+  <text x="328" y="299" text-anchor="middle" fill="#a855f7" font-size="11" font-weight="bold">return n *</text>
+  <text x="328" y="318" text-anchor="middle" fill="#a855f7" font-size="11" font-weight="bold">factorial(n-1)</text>
+  <!-- Converge to END -->
+  <line x1="72" y1="318" x2="72" y2="400" stroke="#00e5ff" stroke-width="2"/>
+  <line x1="72" y1="400" x2="168" y2="400" stroke="#00e5ff" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="328" y1="330" x2="328" y2="400" stroke="#00e5ff" stroke-width="2"/>
+  <line x1="328" y1="400" x2="232" y2="400" stroke="#00e5ff" stroke-width="2" marker-end="url(#arr)"/>
+  <!-- END oval -->
+  <ellipse cx="200" cy="400" rx="52" ry="22" fill="none" stroke="#00ff88" stroke-width="2.5" filter="url(#glow)"/>
+  <text x="200" y="406" text-anchor="middle" fill="#00ff88" font-size="14" font-weight="bold">END</text>
+  <!-- Border -->
+  <rect width="400" height="480" fill="none" stroke="#30363d" stroke-width="1.5" rx="14"/>
+</svg>
