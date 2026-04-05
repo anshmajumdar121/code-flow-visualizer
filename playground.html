@@ -1,0 +1,1970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code-Visualizer Pro - Interactive Flowchart</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0f;
+            color: #e4e4e7;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Header - Premium Glassmorphism */
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 64px;
+            background: rgba(15, 15, 20, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa, #8b5cf6);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        @keyframes shimmer {
+            to { background-position: 200% center; }
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .tool-group {
+            display: flex;
+            gap: 0.25rem;
+            background: rgba(255,255,255,0.03);
+            padding: 0.25rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        .tool-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: none;
+            color: #a1a1aa;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tool-btn:hover::before { opacity: 1; }
+        .tool-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+        
+        .tool-btn.active { 
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            color: white;
+            box-shadow: 0 4px 12px rgba(139,92,246,0.3);
+        }
+
+        /* FIXED DROPDOWN STYLING */
+        select {
+            padding: 0.5rem 2.5rem 0.5rem 1rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.12);
+            font-weight: 600;
+            transition: all 0.2s;
+            background: linear-gradient(180deg, #1a1a25, #151520);
+            color: #e4e4e7;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        select:hover { 
+            border-color: rgba(139,92,246,0.5);
+            box-shadow: 0 4px 12px rgba(139,92,246,0.2);
+        }
+
+        /* Style for dropdown options */
+        select option {
+            background: #1a1a25;
+            color: #e4e4e7;
+            padding: 0.75rem 1rem;
+            border: none;
+        }
+
+        select option:hover,
+        select option:checked {
+            background: linear-gradient(90deg, rgba(139,92,246,0.2), rgba(167,139,250,0.2));
+            color: #ffffff;
+        }
+
+        /* For better browser compatibility, we can use a custom dropdown */
+        .custom-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-trigger {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 2.5rem 0.5rem 1rem;
+            background: linear-gradient(180deg, #1a1a25, #151520);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            color: #e4e4e7;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .dropdown-trigger:hover {
+            border-color: rgba(139,92,246,0.5);
+            box-shadow: 0 4px 12px rgba(139,92,246,0.2);
+        }
+
+        .dropdown-trigger::after {
+            content: '';
+            position: absolute;
+            right: 0.75rem;
+            width: 12px;
+            height: 12px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            left: 0;
+            min-width: 180px;
+            background: linear-gradient(180deg, #1e1e2a, #181825);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.6);
+            z-index: 10000;
+            display: none;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            animation: dropdownFade 0.2s ease;
+        }
+
+        @keyframes dropdownFade {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            color: #e4e4e7;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dropdown-item:hover {
+            background: linear-gradient(90deg, rgba(139,92,246,0.15), rgba(167,139,250,0.15));
+            color: #ffffff;
+        }
+
+        .dropdown-item.active {
+            background: linear-gradient(90deg, rgba(139,92,246,0.2), rgba(167,139,250,0.2));
+            color: #8b5cf6;
+            font-weight: 600;
+        }
+
+        .action-btn {
+            padding: 0.5rem 1.25rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            color: white;
+            box-shadow: 0 4px 12px rgba(139,92,246,0.3);
+        }
+
+        .btn-primary:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139,92,246,0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(180deg, #1a1a25, #151520);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #e4e4e7;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .btn-secondary:hover { 
+            background: linear-gradient(180deg, #202030, #1a1a25);
+            border-color: rgba(255,255,255,0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Main Layout */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            padding-top: 64px;
+        }
+
+        /* Code Editor - Premium Panel */
+        .editor-panel {
+            width: 350px;
+            background: linear-gradient(180deg, #0f0f15 0%, #0a0a0f 100%);
+            border-right: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+        }
+
+        .panel-header {
+            padding: 1rem 1.25rem;
+            font-size: 0.7rem;
+            color: #71717a;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .sync-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.7rem;
+            color: #10b981;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .sync-indicator.active::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 10px #10b981;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+        }
+
+        .code-editor {
+            flex: 1;
+            padding: 1.25rem;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            background: transparent;
+            color: #e4e4e7;
+            border: none;
+            resize: none;
+            outline: none;
+            line-height: 1.7;
+        }
+
+        /* Canvas Area */
+        .canvas-panel {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #0f0f15 0%, #0a0a0f 100%);
+        }
+
+        .canvas-header {
+            position: absolute;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            padding: 0.6rem 1.5rem;
+            border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.75rem;
+            color: #a1a1aa;
+            z-index: 100;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .canvas-viewport {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .canvas-viewport.panning { cursor: grab !important; }
+        .canvas-viewport.panning:active { cursor: grabbing !important; }
+        .canvas-viewport.connecting { cursor: crosshair !important; }
+
+        .canvas-content {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-origin: 0 0;
+            will-change: transform;
+        }
+
+        .grid-bg {
+            position: absolute;
+            inset: -500px;
+            width: calc(100% + 1000px);
+            height: calc(100% + 1000px);
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 25px 25px;
+            pointer-events: none;
+        }
+
+        /* SVG Wires */
+        .wires-svg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: visible;
+        }
+
+        .wire {
+            fill: none;
+            stroke: #3f3f46;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            transition: all 0.2s;
+            cursor: pointer;
+            pointer-events: stroke;
+        }
+
+        .wire:hover {
+            stroke: #8b5cf6;
+            stroke-width: 3;
+            filter: drop-shadow(0 0 6px rgba(139,92,246,0.5));
+        }
+
+        .wire.active {
+            stroke: #8b5cf6;
+            stroke-width: 3.5;
+            filter: drop-shadow(0 0 10px rgba(139,92,246,0.6));
+        }
+
+        .wire.error {
+            stroke: #ef4444;
+            stroke-width: 3;
+            filter: drop-shadow(0 0 8px rgba(239,68,68,0.5));
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+
+        /* Connection Points */
+        .port {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #18181b;
+            border: 2.5px solid #3f3f46;
+            border-radius: 50%;
+            z-index: 20;
+            transition: all 0.2s;
+            cursor: crosshair;
+        }
+
+        .port:hover {
+            border-color: #8b5cf6;
+            transform: scale(1.8);
+            box-shadow: 0 0 15px rgba(139,92,246,0.6);
+            background: #8b5cf6;
+        }
+
+        .port.connected {
+            border-color: #8b5cf6;
+            background: #8b5cf6;
+            box-shadow: 0 0 10px rgba(139,92,246,0.5);
+        }
+
+        .port.input { left: -8px; top: 50%; transform: translateY(-50%); }
+        .port.output { right: -8px; top: 50%; transform: translateY(-50%); }
+        .port.yes { right: -8px; top: 30%; transform: translateY(-50%); }
+        .port.no { right: -8px; bottom: 30%; transform: translateY(-50%); }
+
+        /* Nodes - Premium Cards */
+        .node {
+            position: absolute;
+            background: linear-gradient(180deg, rgba(24,24,27,0.95) 0%, rgba(15,15,18,0.95) 100%);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 1rem 1.25rem;
+            min-width: 200px;
+            max-width: 260px;
+            z-index: 10;
+            cursor: grab;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .node:active { cursor: grabbing; }
+        
+        .node:hover { 
+            border-color: rgba(255,255,255,0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.6);
+        }
+
+        .node.active {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 40px rgba(139,92,246,0.3), 0 8px 24px rgba(0,0,0,0.5);
+            transform: scale(1.05);
+            z-index: 50;
+        }
+
+        .node.error {
+            border-color: #ef4444;
+            box-shadow: 0 0 30px rgba(239,68,68,0.3);
+            animation: shake 0.5s ease;
+        }
+
+        .node.start { border-color: #10b981; }
+        .node.end { border-color: #ef4444; }
+        .node.condition { border-color: #f59e0b; }
+        .node.function { border-color: #8b5cf6; }
+
+        .node-title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #f4f4f5;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .node-icon {
+            width: 16px; height: 16px;
+            flex-shrink: 0;
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        .node-icon svg { width: 14px; height: 14px; }
+
+        .node-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: #71717a;
+            line-height: 1.5;
+            word-break: break-all;
+        }
+
+        .node-error-msg {
+            font-size: 0.7rem;
+            color: #ef4444;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(239,68,68,0.2);
+        }
+
+        /* Delete Button - VISIBLE & PROMINENT */
+        .wire-delete {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: 3px solid #0a0a0f;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.2s;
+            pointer-events: all;
+            box-shadow: 0 4px 12px rgba(239,68,68,0.5);
+        }
+
+        .wire-delete:hover { 
+            transform: scale(1.3) rotate(90deg);
+            box-shadow: 0 6px 20px rgba(239,68,68,0.7);
+        }
+
+        .wire-delete svg { width: 14px; height: 14px; fill: white; }
+
+        .wire-group:hover .wire-delete { display: flex; }
+
+        /* Side Panel - Premium Glassmorphism */
+        .side-panel {
+            width: 320px;
+            background: linear-gradient(180deg, rgba(15,15,20,0.95) 0%, rgba(10,10,15,0.95) 100%);
+            border-left: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.4);
+            backdrop-filter: blur(20px);
+        }
+
+        .var-section {
+            padding: 1.25rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.02);
+        }
+
+        .var-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid #8b5cf6;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .var-card.updated {
+            border-left-color: #10b981;
+            background: linear-gradient(180deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%);
+            animation: pulse-var 0.5s ease;
+            box-shadow: 0 0 20px rgba(16,185,129,0.2);
+        }
+
+        @keyframes pulse-var {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .var-label {
+            font-size: 0.7rem;
+            color: #71717a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .var-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #f4f4f5;
+            margin-top: 0.2rem;
+            word-break: break-all;
+            white-space: pre-wrap;
+            max-height: 60px;
+            overflow-y: auto;
+        }
+
+        .output-section {
+            padding: 1.25rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 180px;
+        }
+
+        .output-box {
+            background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 100%);
+            border: 1.5px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #10b981;
+            min-height: 140px;
+            max-height: 220px;
+            overflow-y: auto;
+            line-height: 1.7;
+            transition: all 0.3s;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .output-box.error {
+            color: #ef4444;
+            border-color: rgba(239,68,68,0.3);
+            background: linear-gradient(180deg, rgba(239,68,68,0.1) 0%, rgba(239,68,68,0.05) 100%);
+        }
+
+        .output-box.success {
+            color: #10b981;
+            border-color: rgba(16,185,129,0.3);
+        }
+
+        .error-details {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(239,68,68,0.15);
+            border-radius: 8px;
+            font-size: 0.75rem;
+            line-height: 1.6;
+            border-left: 3px solid #ef4444;
+        }
+
+        .controls-section {
+            padding: 1.25rem;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.02);
+        }
+
+        .control-row {
+            display: flex;
+            gap: 0.6rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .control-row button {
+            flex: 1;
+            padding: 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 10px;
+        }
+
+        .step-display {
+            text-align: center;
+            padding: 0.75rem;
+            font-size: 0.85rem;
+            color: #8b5cf6;
+            background: rgba(139,92,246,0.1);
+            border-radius: 10px;
+            font-weight: 700;
+            border: 1.5px solid rgba(139,92,246,0.2);
+            margin-bottom: 0.6rem;
+            box-shadow: 0 2px 8px rgba(139,92,246,0.1);
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 3px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 3px;
+            box-shadow: 0 0 10px rgba(139,92,246,0.4);
+        }
+
+        .status-error {
+            color: #ef4444 !important;
+            background: rgba(239,68,68,0.1) !important;
+            border-color: rgba(239,68,68,0.2) !important;
+        }
+
+        .status-success {
+            color: #10b981 !important;
+            background: rgba(16,185,129,0.1) !important;
+            border-color: rgba(16,185,129,0.2) !important;
+        }
+
+        /* Execution Indicator */
+        .execution-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(139,92,246,0.15);
+            border: 1.5px solid rgba(139,92,246,0.3);
+            padding: 0.6rem 1.25rem;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            color: #8b5cf6;
+            display: none;
+            align-items: center;
+            gap: 0.6rem;
+            animation: fadeIn 0.3s ease;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .execution-indicator.active { display: flex; }
+
+        .execution-indicator::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+            box-shadow: 0 0 10px #8b5cf6;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Validation Toast */
+        .validation-toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: linear-gradient(135deg, rgba(239,68,68,0.95), rgba(220,38,38,0.95));
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 12px 32px rgba(239,68,68,0.4);
+            z-index: 10000;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            border: 1.5px solid rgba(255,255,255,0.1);
+        }
+
+        .validation-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .validation-toast.success {
+            background: linear-gradient(135deg, rgba(16,185,129,0.95), rgba(5,150,105,0.95));
+            box-shadow: 0 12px 32px rgba(16,185,129,0.4);
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            background: rgba(24,24,27,0.98);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #a1a1aa;
+            pointer-events: none;
+            z-index: 10000;
+            display: none;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        /* Footer */
+        .footer-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 15, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 1rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #6b7280;
+            z-index: 100;
+        }
+
+        .footer-bar a {
+            color: #8b5cf6;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo" onclick="window.location.href='index.html'">⚡ Code-Visualizer</div>
+        <div class="header-controls">
+            <div class="tool-group">
+                <button class="tool-btn active" id="btnSelect" onclick="setTool('select')">🖱️ Select</button>
+                <button class="tool-btn" id="btnPan" onclick="setTool('pan')">✋ Pan</button>
+            </div>
+            
+            <!-- Custom Dark Dropdown -->
+            <div class="custom-dropdown">
+                <div class="dropdown-trigger" id="dropdownTrigger" onclick="toggleDropdown()">
+                    <span id="selectedExample">📚 Factorial</span>
+                </div>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <div class="dropdown-item active" onclick="loadExample('factorial', '📚 Factorial')">
+                        📚 Factorial
+                    </div>
+                    <div class="dropdown-item" onclick="loadExample('fibonacci', '📚 Fibonacci')">
+                        📚 Fibonacci
+                    </div>
+                    <div class="dropdown-item" onclick="loadExample('quadratic', '📐 Quadratic')">
+                        📐 Quadratic
+                    </div>
+                    <div class="dropdown-item" onclick="loadExample('condition', '❓ If-Else')">
+                        ❓ If-Else
+                    </div>
+                </div>
+            </div>
+            
+            <button class="action-btn btn-primary" onclick="visualize()">▶ Visualize</button>
+            <button class="action-btn btn-secondary" onclick="executeModified()">✓ Execute</button>
+            <button class="action-btn btn-secondary" onclick="resetAll()">↺ Reset</button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <div class="editor-panel">
+            <div class="panel-header">
+                <span>Code Editor</span>
+                <div class="sync-indicator active" id="syncIndicator">Synced</div>
+            </div>
+            <textarea id="codeInput" class="code-editor" spellcheck="false">def factorial(n):
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)
+
+result = factorial(5)
+print("Result:", result)</textarea>
+        </div>
+
+        <div class="canvas-panel">
+            <div class="canvas-header" id="canvasHint" style="position:absolute;top:1rem;left:50%;transform:translateX(-50%);background:rgba(20,20,30,0.92);backdrop-filter:blur(12px);padding:0.5rem 1rem 0.5rem 1.5rem;border-radius:25px;border:1px solid rgba(255,255,255,0.12);font-size:0.72rem;color:#a1a1aa;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,0.4);display:flex;align-items:center;gap:0.75rem;white-space:nowrap;">
+                <span>Drag nodes</span><span style="opacity:0.3">•</span>
+                <span>Drag ports to connect</span><span style="opacity:0.3">•</span>
+                <span>Double-click node to edit</span><span style="opacity:0.3">•</span>
+                <span><kbd style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.35);border-radius:4px;padding:1px 5px;font-size:0.65rem;color:#a78bfa;font-weight:700">V</kbd> Select &nbsp;<kbd style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.35);border-radius:4px;padding:1px 5px;font-size:0.65rem;color:#a78bfa;font-weight:700">H</kbd> Pan &nbsp;<kbd style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.35);border-radius:4px;padding:1px 5px;font-size:0.65rem;color:#a78bfa;font-weight:700">Ctrl+↵</kbd> Run</span>
+                <button onclick="dismissHint()" style="width:18px;height:18px;background:rgba(255,255,255,0.08);border:none;border-radius:50%;color:#71717a;font-size:11px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;" title="Dismiss">✕</button>
+            </div>
+            <div class="canvas-viewport" id="viewport">
+                <div class="canvas-content" id="canvas">
+                    <div class="grid-bg"></div>
+                    <svg class="wires-svg" id="wiresSvg"></svg>
+                    <div id="nodesLayer"></div>
+                    <div id="deleteBtnsLayer"></div>
+                </div>
+            </div>
+            <div class="execution-indicator" id="execIndicator">
+                Executing...
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <div class="var-section" style="padding:1.25rem;border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);max-height:260px;overflow-y:auto;">
+                <div class="panel-header" style="padding:0 0 0.75rem 0;border:none;">Variable State</div>
+                <div class="var-card" style="border-left:3px solid #3f3f46;padding:0.6rem 0.85rem;">
+                    <div style="color:#52525b;font-size:0.75rem;">Run code to see variables…</div>
+                </div>
+            </div>
+            
+            <div class="output-section">
+                <div class="panel-header" style="padding:0 0 0.75rem 0; border:none;">Live Output</div>
+                <div class="output-box" id="outputBox">Click Execute to run</div>
+            </div>
+            
+            <div class="controls-section">
+                <div class="control-row">
+                    <button class="btn-secondary" onclick="stepBack()">◀ Back</button>
+                    <button class="btn-primary" onclick="stepForward()">Forward ▶</button>
+                </div>
+                <button class="btn-secondary" style="width:100%; margin-bottom: 0.75rem;" onclick="playAnimation()">▶ Play Animation</button>
+                <div class="step-display" id="stepDisplay">Click Visualize to start</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer-bar">
+        Made with ❤️ by <strong>Ansh Majumdar</strong> | 
+        <a href="https://github.com/anshmajumdar121" target="_blank">GitHub: anshmajumdar121</a> | 
+        <a href="index.html#support">❤️ Support this project</a>
+    </footer>
+
+    <div class="validation-toast" id="validationToast"></div>
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // State
+        let nodes = [];
+        let connections = [];
+        let executionPath = [];
+        let currentStep = 0;
+        let isPlaying = false;
+        let playTimer = null;
+        
+        let tool = 'select';
+        let isPanning = false;
+        let panStart = { x: 0, y: 0 };
+        let viewOffset = { x: 0, y: 0 };
+        let scale = 1;
+        
+        let draggingNode = null;
+        let dragOffset = { x: 0, y: 0 };
+        
+        let connecting = null;
+        let nodeIdSeq = 0;
+        
+        let isCodeUpdating = false;
+
+        // Dropdown Toggle
+        function toggleDropdown() {
+            const menu = document.getElementById('dropdownMenu');
+            menu.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.querySelector('.custom-dropdown');
+            if (!dropdown.contains(e.target)) {
+                document.getElementById('dropdownMenu').classList.remove('show');
+            }
+        });
+
+        function loadExample(exampleName, label) {
+            const examples = {
+                factorial: `def factorial(n):\n    if n <= 1:\n        return 1\n    return n * factorial(n - 1)\n\nresult = factorial(5)\nprint("Result:", result)`,
+                fibonacci: `def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)\n\nprint(fibonacci(6))`,
+                quadratic: `import cmath\na = 1\nb = 5\nc = 6\nd = (b**2) - (4*a*c)\nsol1 = (-b - cmath.sqrt(d)) / (2*a)\nsol2 = (-b + cmath.sqrt(d)) / (2*a)\nprint(f"Solutions: {sol1} and {sol2}")`,
+                condition: `age = 18\nif age >= 18:\n    print("You can vote!")\nelse:\n    print("Too young to vote")`
+            };
+            
+            document.getElementById('codeInput').value = examples[exampleName];
+            document.getElementById('selectedExample').textContent = label;
+            
+            // Update active state
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.textContent.trim() === label) {
+                    item.classList.add('active');
+                }
+            });
+            
+            document.getElementById('dropdownMenu').classList.remove('show');
+            visualize();
+        }
+
+        // Validation Rules
+        const validationRules = {
+            'start': ['function', 'process', 'condition'],
+            'function': ['condition', 'process', 'return'],
+            'condition': ['process', 'return', 'condition'],
+            'process': ['process', 'condition', 'return', 'end'],
+            'return': ['end'],
+            'end': []
+        };
+
+        const errorMessages = {
+            'start->start': 'Cannot connect START to START',
+            'start->end': 'START cannot directly connect to END',
+            'condition->start': 'Cannot connect back to START from condition',
+            'return->process': 'Cannot add code after RETURN statement',
+            'return->condition': 'Cannot add condition after RETURN',
+            'end->process': 'Cannot add code after END',
+            'end->condition': 'Cannot add condition after END',
+            'function->start': 'Cannot connect back to START from function'
+        };
+
+        function setTool(t) {
+            tool = t;
+            document.getElementById('btnSelect').classList.toggle('active', t === 'select');
+            document.getElementById('btnPan').classList.toggle('active', t === 'pan');
+            
+            const viewport = document.getElementById('viewport');
+            viewport.classList.remove('panning', 'connecting');
+            if (t === 'pan') viewport.classList.add('panning');
+        }
+
+        function updateTransform() {
+            const canvas = document.getElementById('canvas');
+            canvas.style.transform = `translate(${viewOffset.x}px, ${viewOffset.y}px) scale(${scale})`;
+        }
+
+        class FlowNode {
+            constructor(id, type, title, code, x, y) {
+                this.id = id;
+                this.type = type;
+                this.title = title;
+                this.code = code;
+                this.x = x;
+                this.y = y;
+                this.error = '';
+            }
+        }
+
+        class FlowConn {
+            constructor(fromId, fromPort, toId, toPort, label = '') {
+                this.fromId = fromId;
+                this.fromPort = fromPort;
+                this.toId = toId;
+                this.toPort = toPort;
+                this.label = label;
+                this.isModified = false;
+            }
+        }
+
+        function parseCodeToFlow(code) {
+            const lines = code.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+            const newNodes = [];
+            const newConns = [];
+            nodeIdSeq = 0;
+            
+            let cx = 400, cy = 100, lastId = null;
+            
+            const startId = nodeIdSeq++;
+            newNodes.push(new FlowNode(startId, 'start', 'START', 'Program entry', cx, cy));
+            lastId = startId;
+            cy += 130;
+            
+            for (let line of lines) {
+                let type = 'process', title = line;
+                
+                if (line.includes('def ') || line.includes('function')) {
+                    type = 'function';
+                    title = line.split(':')[0];
+                } else if (line.includes('if ') || line.includes('while ') || line.includes('for ')) {
+                    type = 'condition';
+                    title = line.replace(':', '');
+                } else if (line.includes('return')) {
+                    type = 'return';
+                }
+                
+                const nodeId = nodeIdSeq++;
+                newNodes.push(new FlowNode(nodeId, type, title, line, cx, cy));
+                
+                if (type === 'condition') {
+                    const yesId = nodeIdSeq++;
+                    newNodes.push(new FlowNode(yesId, 'process', 'Yes', 'True path', cx + 200, cy + 60));
+                    newConns.push(new FlowConn(nodeId, 'yes', yesId, 'input', 'YES'));
+                    
+                    const noId = nodeIdSeq++;
+                    newNodes.push(new FlowNode(noId, 'process', 'No', 'False path', cx - 200, cy + 60));
+                    newConns.push(new FlowConn(nodeId, 'no', noId, 'input', 'NO'));
+                    
+                    const afterId = nodeIdSeq++;
+                    newNodes.push(new FlowNode(afterId, 'process', 'Continue', 'Next step', cx, cy + 180));
+                    newConns.push(new FlowConn(yesId, 'output', afterId, 'input'));
+                    newConns.push(new FlowConn(noId, 'output', afterId, 'input'));
+                    
+                    lastId = afterId;
+                    cy += 240;
+                } else {
+                    newConns.push(new FlowConn(lastId, 'output', nodeId, 'input'));
+                    lastId = nodeId;
+                    cy += 130;
+                }
+            }
+            
+            const endId = nodeIdSeq++;
+            newNodes.push(new FlowNode(endId, 'end', 'END', 'Program exit', cx, cy));
+            newConns.push(new FlowConn(lastId, 'output', endId, 'input'));
+            
+            return { nodes: newNodes, connections: newConns };
+        }
+
+        function generateCodeFromFlow() {
+            // Rebuilds Python code by walking the actual connection graph.
+            // Handles: functions, conditions (if/else), loops, returns, process nodes.
+            // Skips auto-generated placeholder nodes (Yes/No/Continue) created by parseCodeToFlow.
+            const startNode = nodes.find(n => n.type === 'start');
+            if (!startNode) return '';
+
+            const lines = [];
+            const globalVisited = new Set();
+
+            // Placeholder titles created by parseCodeToFlow that should not emit code
+            const SKIP_TITLES = new Set(['Yes', 'No', 'Continue', 'True path', 'False path', 'Next step', 'Program entry', 'Program exit']);
+
+            function isSkip(node) {
+                return !node || node.type === 'start' || node.type === 'end' ||
+                    (node.type === 'process' && SKIP_TITLES.has(node.title));
+            }
+
+            function nextReal(node) {
+                // Follow chain of skip-nodes to find the next real node
+                let cur = node;
+                const seen = new Set();
+                while (cur && isSkip(cur) && !seen.has(cur.id)) {
+                    seen.add(cur.id);
+                    const out = connections.find(c => c.fromId === cur.id);
+                    cur = out ? nodes.find(n => n.id === out.toId) : null;
+                }
+                return (cur && !isSkip(cur)) ? cur : null;
+            }
+
+            function getOut(node) {
+                const c = connections.find(c => c.fromId === node.id);
+                return c ? nodes.find(n => n.id === c.toId) : null;
+            }
+            function getYes(node) {
+                const c = connections.find(c => c.fromId === node.id && c.fromPort === 'yes');
+                return c ? nodes.find(n => n.id === c.toId) : null;
+            }
+            function getNo(node) {
+                const c = connections.find(c => c.fromId === node.id && c.fromPort === 'no');
+                return c ? nodes.find(n => n.id === c.toId) : null;
+            }
+
+            function emit(node, indent, stopSet) {
+                // Emit code for node and its successors, stopping at any node in stopSet
+                if (!node || node.type === 'end' || globalVisited.has(node.id)) return;
+                if (stopSet && stopSet.has(node.id)) return;
+                globalVisited.add(node.id);
+
+                const pad = '    '.repeat(indent);
+
+                if (node.type === 'function') {
+                    lines.push(`${pad}${node.code}`);
+                    const next = getOut(node);
+                    if (next) emit(next, indent, stopSet);
+
+                } else if (node.type === 'condition') {
+                    let cond = node.code.trim().replace(/^if\s+/, '').replace(/:$/, '').trim();
+                    lines.push(`${pad}if ${cond}:`);
+
+                    // YES branch
+                    const yesRaw = getYes(node);
+                    const yesBranch = yesRaw ? (isSkip(yesRaw) ? nextReal(yesRaw) : yesRaw) : null;
+
+                    // NO branch
+                    const noRaw = getNo(node);
+                    const noBranch = noRaw ? (isSkip(noRaw) ? nextReal(noRaw) : noRaw) : null;
+
+                    // Find merge point (first common successor of yes/no paths)
+                    const mergeNode = findMerge(yesBranch, noBranch);
+                    const mergeSet = new Set(stopSet || []);
+                    if (mergeNode) mergeSet.add(mergeNode.id);
+
+                    if (yesBranch && !globalVisited.has(yesBranch.id)) {
+                        emit(yesBranch, indent + 1, mergeSet);
+                    } else {
+                        lines.push(`${pad}    pass`);
+                    }
+
+                    if (noBranch && !globalVisited.has(noBranch.id)) {
+                        lines.push(`${pad}else:`);
+                        emit(noBranch, indent + 1, mergeSet);
+                    }
+
+                    // Continue after the if/else
+                    if (mergeNode && !globalVisited.has(mergeNode.id)) {
+                        emit(mergeNode, indent, stopSet);
+                    }
+
+                } else if (node.type === 'return') {
+                    lines.push(`${pad}${node.code}`);
+                    // return terminates branch
+
+                } else {
+                    // process node — skip placeholder titles
+                    if (!SKIP_TITLES.has(node.title)) {
+                        lines.push(`${pad}${node.code}`);
+                    }
+                    const next = getOut(node);
+                    if (next) emit(next, indent, stopSet);
+                }
+            }
+
+            function findMerge(a, b) {
+                // BFS from both branches to find first common node
+                if (!a || !b) return null;
+                const pathA = new Set();
+                let cur = a;
+                const seen = new Set();
+                while (cur && !seen.has(cur.id) && cur.type !== 'end') {
+                    pathA.add(cur.id);
+                    seen.add(cur.id);
+                    const out = connections.find(c => c.fromId === cur.id);
+                    cur = out ? nodes.find(n => n.id === out.toId) : null;
+                }
+                cur = b;
+                const seen2 = new Set();
+                while (cur && !seen2.has(cur.id) && cur.type !== 'end') {
+                    if (pathA.has(cur.id)) return nodes.find(n => n.id === cur.id);
+                    seen2.add(cur.id);
+                    const out = connections.find(c => c.fromId === cur.id);
+                    cur = out ? nodes.find(n => n.id === out.toId) : null;
+                }
+                return null;
+            }
+
+            // Start walking from the first node after START
+            const firstOut = connections.find(c => c.fromId === startNode.id);
+            const firstNode = firstOut ? nodes.find(n => n.id === firstOut.toId) : null;
+            if (firstNode) emit(firstNode, 0, null);
+
+            return lines.join('\n');
+        }
+
+        function render() {
+            renderNodes();
+            renderWires();
+        }
+
+        function renderNodes() {
+            const layer = document.getElementById('nodesLayer');
+            layer.innerHTML = '';
+            
+            nodes.forEach(node => {
+                const el = document.createElement('div');
+                el.className = `node ${node.type} ${node.error ? 'error' : ''} ${executionPath[currentStep] === node.id ? 'active' : ''}`;
+                el.style.left = node.x + 'px';
+                el.style.top = node.y + 'px';
+                el.dataset.id = node.id;
+                
+                let portsHtml = '';
+                if (node.type !== 'start') {
+                    portsHtml += `<div class="port input" data-node="${node.id}" data-port="input"></div>`;
+                }
+                if (node.type === 'condition') {
+                    portsHtml += `
+                        <div class="port yes" data-node="${node.id}" data-port="yes"></div>
+                        <div class="port no" data-node="${node.id}" data-port="no"></div>
+                    `;
+                } else if (node.type !== 'end') {
+                    portsHtml += `<div class="port output" data-node="${node.id}" data-port="output"></div>`;
+                }
+                
+                // Premium SVG icons per node type (no emojis)
+                const svgIcons = {
+                    start: `<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"><polygon points="5,3 19,12 5,21"/></svg>`,
+                    end:   `<svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>`,
+                    condition: `<svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"><path d="M12 2l10 10-10 10L2 12z"/></svg>`,
+                    function:  `<svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round"><path d="M9 6l-4 6 4 6M15 6l4 6-4 6"/></svg>`,
+                    process:   `<svg viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="8" width="18" height="8" rx="2"/><line x1="8" y1="8" x2="8" y2="16"/><line x1="16" y1="8" x2="16" y2="16"/></svg>`,
+                    return:    `<svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round"><path d="M9 14l-4-4 4-4"/><path d="M5 10h11a4 4 0 0 1 0 8h-1"/></svg>`
+                };
+                const iconSvg = svgIcons[node.type] || svgIcons.process;
+                const displayTitle = node.title.length > 28 ? node.title.substring(0, 28) + '…' : node.title;
+                
+                el.innerHTML = `
+                    ${portsHtml}
+                    <div class="node-title"><span class="node-icon">${iconSvg}</span>${displayTitle}</div>
+                    <div class="node-code">${node.code}</div>
+                    ${node.error ? `<div class="node-error-msg">⚠ ${node.error}</div>` : ''}
+                `;
+                
+                el.addEventListener('mousedown', e => {
+                    if (e.target.classList.contains('port')) return;
+                    if (tool !== 'select') return;
+                    e.stopPropagation();
+                    draggingNode = node;
+                    dragOffset.x = e.clientX - node.x;
+                    dragOffset.y = e.clientY - node.y;
+                    el.style.zIndex = 100;
+                });
+
+                // Double-click to edit node code inline
+                el.addEventListener('dblclick', e => {
+                    if (e.target.classList.contains('port')) return;
+                    if (node.type === 'start' || node.type === 'end') return;
+                    e.stopPropagation();
+                    const codeDiv = el.querySelector('.node-code');
+                    const oldCode = node.code;
+                    const inp = document.createElement('input');
+                    inp.type = 'text';
+                    inp.value = oldCode;
+                    inp.style.cssText = 'width:100%;background:#1a1a2e;color:#e4e4e7;border:1px solid #8b5cf6;border-radius:4px;padding:2px 6px;font-family:JetBrains Mono,monospace;font-size:12px;outline:none;';
+                    codeDiv.replaceWith(inp);
+                    inp.focus();
+                    inp.select();
+                    const finish = () => {
+                        const newCode = inp.value.trim() || oldCode;
+                        node.code = newCode;
+                        node.title = newCode.length > 30 ? newCode.substring(0, 30) + '…' : newCode;
+                        render();
+                        updateCodeFromWorkflow();
+                    };
+                    inp.addEventListener('blur', finish);
+                    inp.addEventListener('keydown', e => { if (e.key === 'Enter') inp.blur(); if (e.key === 'Escape') { node.code = oldCode; render(); } });
+                });
+                
+                layer.appendChild(el);
+            });
+            
+            document.querySelectorAll('.port').forEach(port => {
+                port.addEventListener('mousedown', e => {
+                    if (tool !== 'select') return;
+                    e.stopPropagation();
+                    const nodeId = parseInt(port.dataset.node);
+                    const portName = port.dataset.port;
+                    connecting = { nodeId, portName };
+                    document.getElementById('viewport').classList.add('connecting');
+                });
+            });
+        }
+
+        function renderWires() {
+            const svg = document.getElementById('wiresSvg');
+            const deleteLayer = document.getElementById('deleteBtnsLayer');
+            svg.innerHTML = '';
+            deleteLayer.innerHTML = '';
+            
+            connections.forEach((conn, idx) => {
+                const fromNode = nodes.find(n => n.id === conn.fromId);
+                const toNode = nodes.find(n => n.id === conn.toId);
+                if (!fromNode || !toNode) return;
+                
+                const path = calcPath(fromNode, conn.fromPort, toNode, conn.toPort);
+                const mid = calcMid(fromNode, conn.fromPort, toNode, conn.toPort);
+                
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.classList.add('wire-group');
+                g.style.pointerEvents = 'all';
+                
+                const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                pathEl.setAttribute('d', path);
+                pathEl.setAttribute('class', `wire ${conn.isModified ? 'modified' : ''}`);
+                pathEl.style.pointerEvents = 'stroke';
+                
+                pathEl.addEventListener('dblclick', (e) => {
+                    e.stopPropagation();
+                    connections.splice(idx, 1);
+                    render();
+                    updateCodeFromWorkflow();
+                    showValidationMessage('Connection deleted', 'success');
+                });
+                
+                pathEl.addEventListener('mouseenter', () => {
+                    pathEl.style.stroke = '#8b5cf6';
+                    pathEl.style.strokeWidth = '3.5';
+                });
+                pathEl.addEventListener('mouseleave', () => {
+                    if (!conn.isModified && !pathEl.classList.contains('error')) {
+                        pathEl.style.stroke = '';
+                        pathEl.style.strokeWidth = '';
+                    }
+                });
+                
+                g.appendChild(pathEl);
+                svg.appendChild(g);
+                
+                const del = document.createElement('div');
+                del.className = 'wire-delete';
+                del.style.left = mid.x + 'px';
+                del.style.top = mid.y + 'px';
+                del.innerHTML = '<svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+                del.title = 'Click to delete connection';
+                del.onclick = (e) => {
+                    e.stopPropagation();
+                    connections.splice(idx, 1);
+                    render();
+                    updateCodeFromWorkflow();
+                    showValidationMessage('Connection deleted', 'success');
+                };
+                deleteLayer.appendChild(del);
+            });
+        }
+
+        function calcPath(from, fromPort, to, toPort) {
+            const p1 = getPortPos(from, fromPort);
+            const p2 = getPortPos(to, toPort);
+            const dx = Math.abs(p2.x - p1.x) * 0.5;
+            return `M ${p1.x} ${p1.y} C ${p1.x + dx} ${p1.y}, ${p2.x - dx} ${p2.y}, ${p2.x} ${p2.y}`;
+        }
+
+        function calcMid(from, fromPort, to, toPort) {
+            const p1 = getPortPos(from, fromPort);
+            const p2 = getPortPos(to, toPort);
+            return { x: (p1.x + p2.x) / 2 - 14, y: (p1.y + p2.y) / 2 - 14 };
+        }
+
+        function getPortPos(node, port) {
+            const w = 200, h = 70;
+            let x = node.x, y = node.y;
+            if (port === 'output') { x += w; y += h/2; }
+            else if (port === 'yes') { x += w; y += h*0.3; }
+            else if (port === 'no') { x += w; y += h*0.7; }
+            else { y += h/2; }
+            return { x, y };
+        }
+
+        function validateConnection(fromNode, toNode) {
+            const key = `${fromNode.type}->${toNode.type}`;
+            const allowedTypes = validationRules[fromNode.type] || [];
+            if (!allowedTypes.includes(toNode.type)) {
+                return { valid: false, message: `Cannot connect ${fromNode.type.toUpperCase()} to ${toNode.type.toUpperCase()}` };
+            }
+            if (errorMessages[key]) {
+                return { valid: false, message: errorMessages[key] };
+            }
+            return { valid: true, message: 'Valid connection' };
+        }
+
+        function showValidationMessage(msg, type = 'error') {
+            const toast = document.getElementById('validationToast');
+            toast.textContent = msg;
+            toast.className = `validation-toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        document.addEventListener('mousemove', e => {
+            if (draggingNode) {
+                draggingNode.x = e.clientX - dragOffset.x;
+                draggingNode.y = e.clientY - dragOffset.y;
+                render();
+            }
+            if (isPanning) {
+                viewOffset.x = e.clientX - panStart.x;
+                viewOffset.y = e.clientY - panStart.y;
+                updateTransform();
+            }
+            if (connecting) {
+                drawTempWire(e);
+            }
+        });
+
+        document.addEventListener('mouseup', e => {
+            if (draggingNode) {
+                draggingNode = null;
+                render();
+            }
+            if (isPanning) {
+                isPanning = false;
+                document.getElementById('viewport').classList.remove('panning');
+            }
+            if (connecting) {
+                finishConnection(e);
+            }
+        });
+
+        const viewport = document.getElementById('viewport');
+        
+        viewport.addEventListener('mousedown', e => {
+            if (tool === 'pan' && (e.target === viewport || e.target.classList.contains('grid-bg') || e.target.id === 'canvas')) {
+                isPanning = true;
+                panStart.x = e.clientX - viewOffset.x;
+                panStart.y = e.clientY - viewOffset.y;
+                viewport.classList.add('panning');
+                e.preventDefault();
+            }
+        });
+
+        viewport.addEventListener('wheel', e => {
+            e.preventDefault();
+            scale = Math.max(0.5, Math.min(2, scale * (e.deltaY > 0 ? 0.95 : 1.05)));
+            updateTransform();
+        }, { passive: false });
+
+        function drawTempWire(e) {
+            const svg = document.getElementById('wiresSvg');
+            let temp = svg.querySelector('.temp-wire');
+            if (!temp) {
+                temp = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                temp.classList.add('wire', 'temp-wire');
+                temp.style.stroke = '#8b5cf6';
+                temp.style.strokeDasharray = '6,4';
+                svg.appendChild(temp);
+            }
+            
+            const node = nodes.find(n => n.id === connecting.nodeId);
+            const p = getPortPos(node, connecting.portName);
+            const canvasRect = document.getElementById('canvas').getBoundingClientRect();
+            const endX = (e.clientX - canvasRect.left) / scale;
+            const endY = (e.clientY - canvasRect.top) / scale;
+            const dx = Math.abs(endX - p.x) * 0.5;
+            
+            temp.setAttribute('d', `M ${p.x} ${p.y} C ${p.x + dx} ${p.y}, ${endX - dx} ${endY}, ${endX} ${endY}`);
+        }
+
+        function finishConnection(e) {
+            document.getElementById('viewport').classList.remove('connecting');
+            const temp = document.querySelector('.temp-wire');
+            if (temp) temp.remove();
+            
+            const target = document.elementFromPoint(e.clientX, e.clientY);
+            if (target && target.classList.contains('port')) {
+                const toNodeId = parseInt(target.dataset.node);
+                const toPortName = target.dataset.port;
+                
+                if (toPortName === 'input' && connecting.portName !== 'input') {
+                    const fromNode = nodes.find(n => n.id === connecting.nodeId);
+                    const toNode = nodes.find(n => n.id === toNodeId);
+                    
+                    const validation = validateConnection(fromNode, toNode);
+                    
+                    if (!validation.valid) {
+                        showValidationMessage(validation.message);
+                        highlightInvalidWire(fromNode, toNode);
+                        return;
+                    }
+                    
+                    const exists = connections.some(c => 
+                        c.fromId === connecting.nodeId && 
+                        c.fromPort === connecting.portName &&
+                        c.toId === toNodeId &&
+                        c.toPort === toPortName
+                    );
+                    
+                    if (!exists) {
+                        // Remove any existing connection from the same port (replace, don't stack)
+                        const oldIdx = connections.findIndex(c =>
+                            c.fromId === connecting.nodeId && c.fromPort === connecting.portName
+                        );
+                        if (oldIdx !== -1) connections.splice(oldIdx, 1);
+
+                        const newConn = new FlowConn(connecting.nodeId, connecting.portName, toNodeId, toPortName);
+                        newConn.isModified = true;
+                        connections.push(newConn);
+                        render();
+                        updateCodeFromWorkflow();
+                        showValidationMessage('Connection updated', 'success');
+                    }
+                }
+            }
+            connecting = null;
+        }
+
+        function highlightInvalidWire(fromNode, toNode) {
+            const svg = document.getElementById('wiresSvg');
+            const path = calcPath(fromNode, 'output', toNode, 'input');
+            const invalidWire = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            invalidWire.setAttribute('d', path);
+            invalidWire.classList.add('wire', 'error');
+            svg.appendChild(invalidWire);
+            setTimeout(() => invalidWire.remove(), 1000);
+        }
+
+        function visualize() {
+            const code = document.getElementById('codeInput').value;
+            const parsed = parseCodeToFlow(code);
+            nodes = parsed.nodes;
+            connections = parsed.connections;
+            executionPath = [];
+            currentStep = 0;
+            
+            simulateExecution();
+            render();
+            updateStepDisplay();
+            document.getElementById('outputBox').textContent = 'Click Execute to run';
+            document.getElementById('outputBox').classList.remove('error', 'success');
+        }
+
+        function simulateExecution() {
+            executionPath = [];
+            const startNode = nodes.find(n => n.type === 'start');
+            if (!startNode) return;
+            
+            let current = startNode;
+            const visited = new Set();
+            
+            while (current && !visited.has(current.id)) {
+                visited.add(current.id);
+                executionPath.push(current.id);
+                
+                const outgoing = connections.filter(c => c.fromId === current.id);
+                if (outgoing.length === 0) break;
+                
+                if (current.type === 'condition') {
+                    const yesConn = outgoing.find(c => c.fromPort === 'yes');
+                    current = nodes.find(n => n.id === (yesConn ? yesConn.toId : null));
+                } else {
+                    current = nodes.find(n => n.id === outgoing[0].toId);
+                }
+            }
+        }
+
+        // ── Hint bar dismiss ───────────────────────────────────────────────────
+        function dismissHint() {
+            const h = document.getElementById('canvasHint');
+            if (h) h.style.display = 'none';
+            try { localStorage.setItem('cvHint2', '1'); } catch(e) {}
+        }
+
+        // ── Keyboard shortcuts ─────────────────────────────────────────────────
+        document.addEventListener('keydown', e => {
+            const tag = document.activeElement?.tagName;
+            if (tag === 'TEXTAREA' || tag === 'INPUT') {
+                if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); executeModified(); }
+                return;
+            }
+            if (e.key === 'v' || e.key === 'V') setTool('select');
+            if (e.key === 'h' || e.key === 'H') setTool('pan');
+            if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); executeModified(); }
+            if (e.ctrlKey && e.key === 'r') { e.preventDefault(); resetAll(); }
+        });
+
+        // ── updateCodeFromWorkflow: graph → code editor ────────────────────────
+        function updateCodeFromWorkflow() {
+            if (isCodeUpdating) return;
+            isCodeUpdating = true;
+            const gen = generateCodeFromFlow();
+            if (gen && gen.trim()) {
+                document.getElementById('codeInput').value = gen;
+                const ind = document.getElementById('syncIndicator');
+                ind.textContent = '↺ Synced from workflow';
+                ind.style.color = '#f59e0b';
+                setTimeout(() => { ind.textContent = 'Synced'; ind.style.color = ''; isCodeUpdating = false; }, 1500);
+            } else { isCodeUpdating = false; }
+        }
+
+        // ── Inline Python Interpreter (zero CDN, works on file://) ────────────
+        function runPython(code) {
+            const output = [], env = Object.create(null);
+            const builtins = {
+                print: (...a) => output.push(a.map(pyStr).join(' ')),
+                range: (a,b,c) => { if(b===undefined){b=a;a=0;} if(c===undefined)c=1; const r=[];if(c>0)for(let i=a;i<b;i+=c)r.push(i);else for(let i=a;i>b;i+=c)r.push(i);return r; },
+                len: x => { if(typeof x==='string'||Array.isArray(x))return x.length; if(x&&typeof x==='object')return Object.keys(x).length; throw new Error('TypeError: no len()'); },
+                int: x => typeof x==='string'?parseInt(x,10):Math.trunc(Number(x)),
+                float: x => parseFloat(x), str: x => pyStr(x), bool: x => !!x,
+                abs: Math.abs, round: (x,d) => d!==undefined?parseFloat(x.toFixed(d)):Math.round(x),
+                max: (...a) => { const r=a.length===1&&Array.isArray(a[0])?a[0]:a; return Math.max(...r); },
+                min: (...a) => { const r=a.length===1&&Array.isArray(a[0])?a[0]:a; return Math.min(...r); },
+                sum: a => a.reduce((x,y)=>x+y,0), sorted: a => [...a].sort((x,y)=>x>y?1:-1),
+                reversed: a => [...a].reverse(), enumerate: a => a.map((v,i)=>[i,v]),
+                zip: (...arrs) => { const n=Math.min(...arrs.map(a=>a.length)); return Array.from({length:n},(_,i)=>arrs.map(a=>a[i])); },
+                list: x => Array.isArray(x)?[...x]:[...x], dict: x=>x||{}, set: x=>[...new Set(x||[])],
+                tuple: x => Array.isArray(x)?[...x]:[], isinstance: ()=>true, type: x=>typeof x,
+                input: p => { const v=window.prompt(p||''); return v===null?'':v; },
+                chr: n=>String.fromCharCode(n), ord: s=>s.charCodeAt(0), hex: n=>'0x'+n.toString(16),
+                bin: n=>'0b'+n.toString(2), oct: n=>'0o'+n.toString(8), pow: Math.pow,
+                divmod: (a,b)=>[Math.trunc(a/b),a%b], any: a=>a.some(Boolean), all: a=>a.every(Boolean),
+                map: (fn,a)=>a.map(fn), filter: (fn,a)=>a.filter(fn), id: x=>x,
+                math: { pi:Math.PI,e:Math.E,sqrt:Math.sqrt,floor:Math.floor,ceil:Math.ceil,
+                    log:Math.log,log2:Math.log2,log10:Math.log10,sin:Math.sin,cos:Math.cos,tan:Math.tan,
+                    asin:Math.asin,acos:Math.acos,atan:Math.atan,atan2:Math.atan2,
+                    pow:Math.pow,exp:Math.exp,fabs:Math.abs,trunc:Math.trunc,inf:Infinity,tau:2*Math.PI,
+                    factorial:n=>{let r=1;for(let i=2;i<=n;i++)r*=i;return r;},
+                    gcd:(a,b)=>{while(b){let t=b;b=a%b;a=t;}return a;} },
+                random: { random:Math.random, randint:(a,b)=>Math.floor(Math.random()*(b-a+1))+a,
+                    choice:a=>a[Math.floor(Math.random()*a.length)],
+                    shuffle:a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;},
+                    uniform:(a,b)=>Math.random()*(b-a)+a, seed:()=>{} },
+                cmath: { sqrt:x=>x<0?`${Math.sqrt(-x)}j`:Math.sqrt(x), pi:Math.PI, e:Math.E }
+            };
+
+            function pyStr(v) {
+                if(v===null||v===undefined)return 'None';
+                if(v===true)return 'True'; if(v===false)return 'False';
+                if(Array.isArray(v))return '['+v.map(pyStr).join(', ')+']';
+                if(typeof v==='object')return '{'+Object.entries(v).map(([k,x])=>`'${k}': ${pyStr(x)}`).join(', ')+'}';
+                return String(v);
+            }
+
+            function splitArgs(s) {
+                const r=[]; let d=0,c='',inS=false,sc='';
+                for(let i=0;i<s.length;i++){const ch=s[i];
+                    if(!inS&&(ch==='"'||ch==="'")){inS=true;sc=ch;c+=ch;}
+                    else if(inS&&ch===sc&&s[i-1]!=='\\'){inS=false;c+=ch;}
+                    else if(!inS&&'([{'.includes(ch)){d++;c+=ch;}
+                    else if(!inS&&')]}'.includes(ch)){d--;c+=ch;}
+                    else if(!inS&&ch===','&&d===0){r.push(c.trim());c='';}
+                    else c+=ch;
+                }
+                if(c.trim())r.push(c.trim()); return r;
+            }
+
+            function execLines(src, lenv) {
+                const sl=src.split('\n'); let j=0;
+                const gi=l=>l.length-l.trimStart().length;
+
+                while(j<sl.length){
+                    let line=sl[j],tr=line.trimStart();
+                    if(!tr||tr.startsWith('#')){j++;continue;}
+                    const ind=gi(line);
+
+                    function cb(){
+                        const b=[];j++;
+                        while(j<sl.length){const bl=sl[j],bt=bl.trimStart();
+                            if(!bt||bt.startsWith('#')){j++;continue;}
+                            if(gi(bl)<=ind)break;b.push(bl);j++;}
+                        return b.join('\n');
+                    }
+
+                    if(tr.startsWith('def ')){
+                        const m=tr.match(/^def\s+(\w+)\s*\((.*?)\)\s*:/);
+                        if(!m){j++;continue;}
+                        const fn=m[1],ps=m[2].split(',').map(p=>p.trim()).filter(Boolean),body=cb();
+                        const f=function(...args){
+                            const fe=Object.assign(Object.create(null),builtins,env,lenv);
+                            ps.forEach((p,i)=>{const eq=p.indexOf('='),pn=eq>=0?p.slice(0,eq).trim():p;fe[pn]=args[i]!==undefined?args[i]:(eq>=0?ev(p.slice(eq+1).trim(),fe):undefined);});
+                            try{return execLines(body,fe);}catch(e){if(e&&e.__r)return e.v;throw e;}
+                        };
+                        lenv[fn]=f;env[fn]=f;continue;
+                    }
+                    if(tr.startsWith('class ')){cb();continue;}
+                    if(tr.startsWith('return')){const ex=tr.slice(6).trim();throw{__r:true,v:ex?ev(ex,lenv):null};}
+                    if(tr.startsWith('import ')){tr.slice(7).split(',').map(s=>s.trim()).forEach(mod=>{const b=mod.split('.')[0];if(builtins[b])lenv[b]=builtins[b];});j++;continue;}
+                    if(tr.startsWith('from ')){
+                        const m=tr.match(/^from\s+(\w+)\s+import\s+(.+)/);
+                        if(m&&builtins[m[1]]){m[2].split(',').map(s=>s.trim()).forEach(n=>{if(n==='*')Object.assign(lenv,builtins[m[1]]);else if(builtins[m[1]][n]!==undefined)lenv[n]=builtins[m[1]][n];});}
+                        j++;continue;
+                    }
+                    if(tr.match(/^if\s+.+:/)){
+                        const cm=tr.match(/^if\s+(.+?)\s*:/),cond=ev(cm[1],lenv),ifb=cb();
+                        let ran=!!cond; if(cond)execLines(ifb,lenv);
+                        while(j<sl.length){const pk=sl[j]?.trimStart()||'';if(gi(sl[j]||'')!==ind)break;
+                            if(pk.startsWith('elif ')){const em=pk.match(/^elif\s+(.+?)\s*:/),ec=em?ev(em[1],lenv):false,eb=cb();if(!ran&&ec){execLines(eb,lenv);ran=true;}}
+                            else if(pk.startsWith('else')){j++;const eb2=cb();if(!ran)execLines(eb2,lenv);break;}
+                            else break;} continue;
+                    }
+                    if(tr.match(/^while\s+.+:/)){
+                        const cm=tr.match(/^while\s+(.+?)\s*:/),wb=cb();let it=0;
+                        while(ev(cm[1],lenv)&&it++<100000){try{execLines(wb,lenv);}catch(e){if(e==='break')break;if(e==='continue')continue;if(e&&e.__r)throw e;throw e;}}
+                        if(it>=100000)output.push('[Loop limit reached]');continue;
+                    }
+                    if(tr.match(/^for\s+.+\s+in\s+.+:/)){
+                        const fm=tr.match(/^for\s+(.+?)\s+in\s+(.+?)\s*:/);if(!fm){j++;continue;}
+                        const vp=fm[1].trim(),fb=cb(),iter=ev(fm[2].trim(),lenv);
+                        const arr=Array.isArray(iter)?iter:typeof iter==='string'?[...iter]:[];
+                        for(const item of arr){
+                            if(vp.includes(','))vp.split(',').map(v=>v.trim()).forEach((v,i)=>lenv[v]=Array.isArray(item)?item[i]:item);
+                            else lenv[vp]=item;
+                            try{execLines(fb,lenv);}catch(e){if(e==='break')break;if(e==='continue')continue;if(e&&e.__r)throw e;throw e;}
+                        }continue;
+                    }
+                    if(tr==='break')throw 'break'; if(tr==='continue')throw 'continue';
+                    if(tr==='try:'){const tb=cb();let eb='';if(sl[j]?.trimStart().startsWith('except')){j++;eb=cb();}try{execLines(tb,lenv);}catch(e){if(e&&e.__r)throw e;if(e==='break'||e==='continue')throw e;if(eb)execLines(eb,lenv);}continue;}
+
+                    const aug=tr.match(/^(\w+)\s*(\+|-|\*|\/|\/\/|%|\*\*|&|\||\^|<<|>>)=\s*(.+)$/);
+                    if(aug){const[,vn,op,ex]=aug;const cur=lenv[vn]!==undefined?lenv[vn]:(env[vn]||0);const rhs=ev(ex,lenv);const res={'+':cur+rhs,'-':cur-rhs,'*':cur*rhs,'/':cur/rhs,'//':Math.trunc(cur/rhs),'%':cur%rhs,'**':cur**rhs}[op]??cur;lenv[vn]=res;env[vn]=res;j++;continue;}
+
+                    const asgn=tr.match(/^([a-zA-Z_][\w]*(?:\[.+?\])?)\s*=(?!=)\s*(.+)$/);
+                    if(asgn&&!tr.startsWith('==')){const lhs=asgn[1].trim(),rhs=ev(asgn[2].trim(),lenv);const sub=lhs.match(/^(\w+)\[(.+)\]$/);if(sub){const obj=lenv[sub[1]]??env[sub[1]];const k=ev(sub[2],lenv);if(Array.isArray(obj))obj[k]=rhs;else if(obj)obj[k]=rhs;}else{lenv[lhs]=rhs;env[lhs]=rhs;}j++;continue;}
+
+                    try{ev(tr,lenv);}catch(e){if(e&&e.__r)throw e;if(e==='break'||e==='continue')throw e;if(e instanceof Error)throw new Error(`Line ${j+1}: ${e.message}`);}
+                    j++;
+                }
+                return null;
+            }
+
+            function ev(expr, lenv) {
+                expr=expr.trim(); if(!expr)return null;
+                if(expr==='None')return null; if(expr==='True')return true; if(expr==='False')return false;
+                if(/^(f?"""[\s\S]*"""|f?'''[\s\S]*''')$/.test(expr)){const s=expr.replace(/^f?"""|"""$/g,'').replace(/^f?'''|'''$/g,'');return expr.startsWith('f')?s.replace(/\{([^}]+)\}/g,(_,e)=>pyStr(ev(e.trim(),lenv))):s;}
+                if(/^f?"[^"]*"$/.test(expr)||/^f?'[^']*'$/.test(expr)){const isF=expr.startsWith('f');const s=expr.slice(isF?2:1,-1).replace(/\\n/g,'\n').replace(/\\t/g,'\t');return isF?s.replace(/\{([^}]+)\}/g,(_,e)=>pyStr(ev(e.trim(),lenv))):s;}
+                if(/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(expr))return Number(expr);
+                if(expr.startsWith('[')&&expr.endsWith(']')){const inn=expr.slice(1,-1).trim();if(!inn)return [];const comp=inn.match(/^(.+?)\s+for\s+(\w+)\s+in\s+(.+?)(\s+if\s+(.+))?$/);if(comp){const[,ep,vn,ip,,fp]=comp;const it=ev(ip,lenv);const ar=Array.isArray(it)?it:typeof it==='string'?[...it]:[];return ar.filter(item=>{lenv[vn]=item;return fp?ev(fp,lenv):true;}).map(item=>{lenv[vn]=item;return ev(ep,lenv);});}return splitArgs(inn).map(e=>ev(e,lenv));}
+                if(expr.startsWith('{')&&expr.endsWith('}')){const inn=expr.slice(1,-1).trim();if(!inn)return{};const o={};splitArgs(inn).forEach(pair=>{const ci=pair.indexOf(':');o[ev(pair.slice(0,ci).trim(),lenv)]=ev(pair.slice(ci+1).trim(),lenv);});return o;}
+                if(expr.startsWith('(')&&expr.endsWith(')')){const inn=expr.slice(1,-1).trim();if(!inn)return[];const ps=splitArgs(inn);return ps.length===1?ev(ps[0],lenv):ps.map(e=>ev(e,lenv));}
+                if(expr.startsWith('not '))return !ev(expr.slice(4),lenv);
+                const inM=expr.match(/^(.+?)\s+(not\s+)?in\s+(.+)$/);
+                if(inM&&!['for ','if ','while '].some(k=>expr.startsWith(k))){const val=ev(inM[1].trim(),lenv);const cont=ev(inM[3].trim(),lenv);const r=Array.isArray(cont)?cont.includes(val):typeof cont==='string'?cont.includes(String(val)):cont&&typeof cont==='object'?(val in cont):false;return inM[2]?!r:r;}
+                if(expr.includes('//') && !expr.includes('://')) {const i=expr.indexOf('//');const a=ev(expr.slice(0,i).trim(),lenv);const b=ev(expr.slice(i+2).trim(),lenv);return Math.trunc(a/b);}
+                const tern=expr.match(/^(.+?)\s+if\s+(.+?)\s+else\s+(.+)$/);if(tern)return ev(tern[2],lenv)?ev(tern[1],lenv):ev(tern[3],lenv);
+                const methM=expr.match(/^(.+?)\.(\w+)\s*\(([^]*)\)$/);
+                if(methM){try{const obj=ev(methM[1],lenv),attr=methM[2];const args=methM[3].trim()?splitArgs(methM[3]).map(a=>ev(a,lenv)):[];
+                    if(Array.isArray(obj)){if(attr==='append'){obj.push(args[0]);return null;}if(attr==='pop')return obj.pop();if(attr==='insert'){obj.splice(args[0],0,args[1]);return null;}if(attr==='remove'){const i=obj.indexOf(args[0]);if(i>=0)obj.splice(i,1);return null;}if(attr==='sort'){obj.sort((a,b)=>a>b?1:-1);return null;}if(attr==='reverse'){obj.reverse();return null;}if(attr==='count')return obj.filter(x=>x===args[0]).length;if(attr==='index')return obj.indexOf(args[0]);if(attr==='extend'){obj.push(...args[0]);return null;}if(attr==='copy')return[...obj];if(attr==='clear'){obj.length=0;return null;}}
+                    if(typeof obj==='string'){if(attr==='upper')return obj.toUpperCase();if(attr==='lower')return obj.toLowerCase();if(attr==='strip')return obj.trim();if(attr==='split')return obj.split(args[0]!==undefined?args[0]:/\s+/).filter(Boolean);if(attr==='join')return args[0].map(pyStr).join(obj);if(attr==='replace')return obj.replaceAll(args[0],args[1]);if(attr==='find')return obj.indexOf(args[0]);if(attr==='startswith')return obj.startsWith(args[0]);if(attr==='endswith')return obj.endsWith(args[0]);if(attr==='format'){let r=obj;args.forEach((a,i)=>{r=r.replace(`{${i}}`,pyStr(a)).replace('{}',pyStr(a));});return r;}if(attr==='count')return(obj.match(new RegExp(args[0],'g'))||[]).length;if(attr==='isdigit')return/^\d+$/.test(obj);if(attr==='isalpha')return/^[a-zA-Z]+$/.test(obj);if(attr==='zfill')return obj.padStart(args[0],'0');if(attr==='lstrip')return obj.trimStart();if(attr==='rstrip')return obj.trimEnd();}
+                    if(obj&&typeof obj==='object'&&!Array.isArray(obj)){if(attr==='keys')return Object.keys(obj);if(attr==='values')return Object.values(obj);if(attr==='items')return Object.entries(obj);if(attr==='get')return obj[args[0]]!==undefined?obj[args[0]]:(args[1]!==undefined?args[1]:null);if(attr==='update'){Object.assign(obj,args[0]);return null;}if(attr==='pop'){const v=obj[args[0]];delete obj[args[0]];return v;}}
+                    if(obj&&typeof obj[attr]==='function')return obj[attr](...args);
+                }catch(e){if(e&&e.__r)throw e;if(e==='break'||e==='continue')throw e;}}
+                const attrM=expr.match(/^(.+?)\.(\w+)$/);if(attrM){try{const obj=ev(attrM[1],lenv);if(obj&&typeof obj==='object')return obj[attrM[2]];}catch(e){if(e&&e.__r)throw e;}}
+                const callM=expr.match(/^([a-zA-Z_]\w*)\s*\(([^]*)\)$/);
+                if(callM){const fn=lenv[callM[1]]??env[callM[1]]??builtins[callM[1]];if(typeof fn==='function'){const args=callM[2].trim()?splitArgs(callM[2]).map(a=>ev(a,lenv)):[];return fn(...args);}if(fn===undefined)throw new Error(`NameError: '${callM[1]}' is not defined`);}
+                const subM=expr.match(/^(.+?)\[(.+)\]$/);
+                if(subM){const obj=ev(subM[1],lenv);if(subM[2].includes(':')){const[a,b]=subM[2].split(':');const ai=a.trim()?ev(a,lenv):0;const bi=b.trim()?ev(b,lenv):(Array.isArray(obj)?obj.length:obj?.length??0);return Array.isArray(obj)?obj.slice(ai,bi):typeof obj==='string'?obj.slice(ai,bi):obj;}const k=ev(subM[2],lenv);if(Array.isArray(obj))return k<0?obj[obj.length+k]:obj[k];if(typeof obj==='string')return k<0?obj[obj.length+k]:obj[k];if(obj&&typeof obj==='object')return obj[k];}
+                if(/^[a-zA-Z_]\w*$/.test(expr)){if(lenv[expr]!==undefined)return lenv[expr];if(env[expr]!==undefined)return env[expr];if(builtins[expr]!==undefined)return builtins[expr];throw new Error(`NameError: '${expr}' is not defined`);}
+                const sc=Object.assign({},builtins,env,lenv,{True:true,False:false,None:null});
+                const keys=Object.keys(sc).filter(k=>/^[a-zA-Z_]\w*$/.test(k));
+                const jsE=expr.replace(/\*\*/g,'**').replace(/\band\b/g,'&&').replace(/\bor\b/g,'||').replace(/\bnot\b/g,'!').replace(/<>/g,'!==');
+                try{const f=new Function(...keys,`"use strict";return (${jsE})`);return f(...keys.map(k=>sc[k]));}
+                catch(e){throw new Error(`SyntaxError: ${e.message} near: ${expr}`);}
+            }
+
+            try{execLines(code,env);}catch(e){if(e&&e.__r){}else if(e==='break'||e==='continue'){}else if(e instanceof Error)throw e;else throw new Error(String(e));}
+            return { output: output.join('\n'), vars: env };
+        }
+
+        // ── Execute ────────────────────────────────────────────────────────────
+        async function executeModified() {
+            const outputBox = document.getElementById('outputBox');
+            const execIndicator = document.getElementById('execIndicator');
+            outputBox.textContent = ''; outputBox.classList.remove('error','success');
+            execIndicator.classList.add('active');
+
+            const startNode = nodes.find(n => n.type === 'start');
+            if (!startNode) { outputBox.innerHTML = '<div>Error: No START node</div>'; outputBox.classList.add('error'); execIndicator.classList.remove('active'); return; }
+
+            const vis2=new Set(),stk2=new Set(); let hasCycle=false;
+            function dc(id){if(stk2.has(id)){hasCycle=true;return;}if(vis2.has(id))return;vis2.add(id);stk2.add(id);connections.filter(c=>c.fromId===id).forEach(c=>dc(c.toId));stk2.delete(id);}
+            dc(startNode.id);
+            if(hasCycle){outputBox.innerHTML=`<div>Error: Infinite loop detected</div><div class="error-details">Workflow has a cycle — check connections.</div>`;outputBox.classList.add('error');execIndicator.classList.remove('active');return;}
+
+            simulateExecution(); currentStep=0; render();
+            for(let i=0;i<executionPath.length;i++){currentStep=i;render();updateStepDisplay();highlightActiveWire(executionPath[i],executionPath[i+1]);await sleep(420);}
+
+            // Execute what is currently in code editor (reflects any workflow edits)
+            const code = document.getElementById('codeInput').value.trim();
+            if(!code){outputBox.textContent='No code.';execIndicator.classList.remove('active');return;}
+            outputBox.textContent='⏳ Running...'; await sleep(30);
+
+            try {
+                const result = runPython(code);
+                const out = (result.output||'').trim();
+                outputBox.textContent = out || '✓ Executed (no output)';
+                outputBox.classList.add('success');
+                updateVariablesFromScope(result.vars);
+                showStatus('Execution successful', false);
+            } catch(err) {
+                outputBox.textContent = err.message || String(err);
+                outputBox.classList.add('error');
+                showStatus('Execution failed', true);
+            }
+            execIndicator.classList.remove('active');
+        }
+
+        function updateVariablesFromScope(vars) {
+            const vs = document.querySelector('.var-section');
+            vs.querySelectorAll('.var-card').forEach(c=>c.remove());
+            const skip=new Set(['print','range','len','int','float','str','bool','abs','round','max','min','sum','sorted','reversed','enumerate','zip','list','dict','set','tuple','isinstance','type','input','chr','ord','hex','bin','oct','pow','divmod','any','all','map','filter','math','random','cmath','id']);
+            const entries=Object.entries(vars||{}).filter(([k])=>!skip.has(k)&&!k.startsWith('__')&&typeof vars[k]!=='function').slice(0,8);
+            if(entries.length===0){
+                const e=document.createElement('div');e.className='var-card';
+                e.innerHTML='<div class="var-label" style="color:#71717a;font-size:0.75rem;text-transform:none;letter-spacing:0">Run code to see variables…</div>';vs.appendChild(e);
+            } else {
+                entries.forEach(([k,v])=>{
+                    const card=document.createElement('div');card.className='var-card updated';
+                    let d=Array.isArray(v)?'['+v.map(x=>typeof x==='string'?`'${x}'`:x).join(', ')+']':String(v===null?'None':v===true?'True':v===false?'False':v);
+                    card.innerHTML=`<div class="var-label">${k}</div><div class="var-value">${d}</div>`;
+                    vs.appendChild(card);setTimeout(()=>card.classList.remove('updated'),700);
+                });
+            }
+        }
+
+        function highlightActiveWire(fromId, toId) {
+            document.querySelectorAll('.wire').forEach(w => w.classList.remove('active'));
+            const index = connections.findIndex(c => c.fromId === fromId && c.toId === toId);
+            if (index !== -1) {
+                const wireGroups = document.querySelectorAll('.wire-group');
+                if (wireGroups[index]) {
+                    const path = wireGroups[index].querySelector('.wire');
+                    if (path) path.classList.add('active');
+                }
+            }
+        }
+
+        function updateVariables(step) {
+            // No-op during animation — real variables populated after execution by updateVariablesFromScope()
+        }
+
+        function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+        function stepForward() {
+            if (currentStep < executionPath.length - 1) {
+                currentStep++;
+                render();
+                updateStepDisplay();
+                highlightActiveWire(executionPath[currentStep - 1], executionPath[currentStep]);
+            }
+        }
+
+        function stepBack() {
+            if (currentStep > 0) {
+                currentStep--;
+                render();
+                updateStepDisplay();
+            }
+        }
+
+        function playAnimation() {
+            if (isPlaying) { clearInterval(playTimer); isPlaying = false; return; }
+            isPlaying = true;
+            playTimer = setInterval(() => {
+                if (currentStep < executionPath.length - 1) stepForward();
+                else { clearInterval(playTimer); isPlaying = false; }
+            }, 900);
+        }
+
+        function updateStepDisplay() {
+            const display = document.getElementById('stepDisplay');
+            const progressFill = document.getElementById('progressFill');
+            
+            if (executionPath.length === 0) {
+                display.textContent = 'Click Visualize to start';
+                progressFill.style.width = '0%';
+                return;
+            }
+            
+            const nodeId = executionPath[currentStep];
+            const node = nodes.find(n => n.id === nodeId);
+            display.textContent = `Step ${currentStep + 1}/${executionPath.length}: ${node ? node.title : ''}`;
+            progressFill.style.width = `${((currentStep + 1) / executionPath.length) * 100}%`;
+        }
+
+        function showStatus(msg, isError) {
+            const display = document.getElementById('stepDisplay');
+            display.textContent = msg;
+            display.className = `step-display ${isError ? 'status-error' : 'status-success'}`;
+            setTimeout(() => { display.className = 'step-display'; updateStepDisplay(); }, 2000);
+        }
+
+        function resetAll() {
+            if (playTimer) clearInterval(playTimer);
+            isPlaying = false;
+            viewOffset = { x: 0, y: 0 };
+            scale = 1;
+            updateTransform();
+            visualize();
+        }
+
+        window.onload = () => {
+            visualize();
+            try { if (localStorage.getItem('cvHintDismissed')) { const h = document.getElementById('canvasHint'); if(h) h.style.display='none'; } } catch(e) {}
+        };
+    </script>
+</body>
+</html>
