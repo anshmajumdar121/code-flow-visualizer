@@ -4,7 +4,7 @@
 
 <div align="center">
 
-<img src="./demo-flowchart.svg" alt="Code Flow Visualizer demo flowchart" width="700"/>
+<img src="./demo-flowchart.svg" alt="Code Flow Visualizer demo flowchart" width="480"/>
 
 </div>
 
