@@ -2,6 +2,13 @@
 
 # ⚡ Code Flow Visualizer
 
+<div align="center">
+
+<img src="./demo-flowchart.svg" alt="Code Flow Visualizer demo flowchart" width="700"/>
+
+</div>
+
+
 ### Transform your code into beautiful, interactive flowcharts — instantly.
 
 [![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_Site-8b5cf6?style=for-the-badge)](https://anshmajumdar121.github.io/code-flow-visualizer/)
@@ -37,16 +44,6 @@ def factorial(n):
         return 1
     return n * factorial(n - 1)
 ```
-
-### ⬇️ Becomes This Flowchart
-
-<img src="./demo-flowchart.svg" alt="Factorial function flowchart demo" width="380"/>
-
-<br/>
-
-[![▶ Try it Live in the Playground](https://img.shields.io/badge/▶_Try_it_Live-Open_Playground-00e5ff?style=for-the-badge&labelColor=0d1117)](https://anshmajumdar121.github.io/code-flow-visualizer/playground.html)
-
-</div>
 
 ## 📖 About
 
@@ -152,7 +149,7 @@ If Code Flow Visualizer saved you time or helped you learn, consider supporting:
 
 | Method | Details |
 |---|---|
-| 🇮🇳 UPI | `majumdar82@okhdfcbank` |
+| 🇮🇳 UPI | `anshmajumdar100@okhdfcbank` |
 | 💳 PayPal | `majumdar82@gmail.com` |
 
 Every contribution keeps this project free for everyone ❤️
