@@ -1,479 +1,601 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ansh Majumdar - Code Visualizer</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code-Visualizer — See Code Come Alive</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    :root{
+      --cyan:#00e5ff;
+      --green:#00ff88;
+      --purple:#a855f7;
+      --magenta:#ff2d78;
+      --bg:#08080f;
+      --bg2:#0d0d1a;
+      --bg3:#111127;
+      --card:#13132a;
+      --border:rgba(0,229,255,0.15);
+      --text:#e8e8ff;
+      --muted:#8888aa;
+    }
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 
-        html {
-            scroll-behavior: smooth;
-        }
+    /* NAV */
+    .navbar{position:fixed;top:0;left:0;right:0;background:rgba(8,8,15,0.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,229,255,0.1);z-index:1000;padding:0 2rem;height:60px;display:flex;align-items:center;justify-content:space-between;}
+    .logo{display:flex;align-items:center;gap:0.6rem;font-size:1.1rem;font-weight:700;color:white;text-decoration:none;}
+    .logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#a855f7,#00e5ff);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;}
+    .nav-links{display:flex;gap:2rem;align-items:center;}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:0.9rem;transition:color 0.2s;}
+    .nav-links a:hover{color:white;}
+    .btn-nav-outline{padding:0.4rem 1rem;border:1px solid rgba(255,255,255,0.3);border-radius:6px;color:white;text-decoration:none;font-size:0.85rem;transition:all 0.2s;}
+    .btn-nav-outline:hover{border-color:white;background:rgba(255,255,255,0.05);}
+    .btn-nav-cta{padding:0.45rem 1.1rem;background:var(--cyan);color:#000;border-radius:6px;font-weight:700;font-size:0.85rem;text-decoration:none;transition:all 0.2s;}
+    .btn-nav-cta:hover{background:#33ecff;transform:scale(1.03);}
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #0a0a0f 0%, #14141a 100%);
-            color: #ffffff;
-            min-height: 100vh;
-        }
+    /* HERO */
+    .hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;padding:100px 6vw 60px;max-width:1400px;margin:0 auto;}
+    .hero-eyebrow{display:inline-block;padding:0.3rem 0.9rem;border:1px solid rgba(168,85,247,0.5);border-radius:20px;font-size:0.75rem;color:var(--purple);margin-bottom:1.5rem;letter-spacing:0.05em;text-transform:uppercase;}
+    .hero h1{font-size:clamp(2.4rem,4.5vw,4rem);font-weight:800;line-height:1.1;color:#fff;margin-bottom:1.2rem;}
+    .hero h1 span{color:var(--cyan);}
+    .hero-sub{font-size:1.1rem;color:var(--muted);line-height:1.7;margin-bottom:2rem;max-width:500px;}
+    .hero-actions{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;}
+    .btn-cta{padding:0.75rem 1.8rem;background:var(--cyan);color:#000;border-radius:8px;font-weight:700;font-size:0.95rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem;transition:all 0.2s;}
+    .btn-cta:hover{background:#33ecff;transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,229,255,0.3);}
+    .btn-ghost{padding:0.7rem 1.4rem;border:1px solid rgba(255,255,255,0.2);color:var(--text);border-radius:8px;font-size:0.9rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem;transition:all 0.2s;}
+    .btn-ghost:hover{border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.03);}
+    .hero-note{font-size:0.75rem;color:var(--muted);margin-top:0.8rem;}
 
-        /* Navigation */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: rgba(10, 10, 15, 0.95);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            z-index: 1000;
-            padding: 1rem 2rem;
-        }
+    /* HERO FLOWCHART */
+    .hero-visual{position:relative;border-radius:20px;background:linear-gradient(135deg,#0d0d20,#131330);border:1px solid rgba(0,229,255,0.2);padding:2rem;box-shadow:0 0 80px rgba(0,229,255,0.06),0 0 40px rgba(168,85,247,0.05);overflow:hidden;}
+    .hero-visual::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 30%,rgba(0,229,255,0.05) 0%,transparent 60%);pointer-events:none;}
+    .flowchart-svg{width:100%;height:auto;}
 
-        .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    /* SECTION COMMONS */
+    section{padding:6rem 6vw;}
+    .section-inner{max-width:1200px;margin:0 auto;}
+    .section-title{font-size:clamp(1.8rem,3vw,2.8rem);font-weight:800;color:#fff;text-align:center;margin-bottom:1rem;}
+    .section-sub{text-align:center;color:var(--muted);font-size:1rem;margin-bottom:4rem;}
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
+    /* HOW IT WORKS — 3 STEPS */
+    .steps-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0;align-items:center;}
+    .step-card{position:relative;padding:2.5rem 2rem;border:1px solid var(--border);border-radius:16px;background:var(--card);text-align:center;transition:all 0.3s;}
+    .step-card.active-step{border-color:var(--green);background:rgba(0,255,136,0.05);}
+    .step-card:hover{transform:translateY(-4px);border-color:rgba(0,229,255,0.4);}
+    .step-arrow{display:flex;align-items:center;justify-content:center;color:var(--purple);font-size:1.5rem;padding:0 0.5rem;}
+    .step-icon-box{width:70px;height:70px;border-radius:14px;border:1.5px solid;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;font-size:1.8rem;}
+    .step-icon-box.purple{border-color:var(--purple);color:var(--purple);background:rgba(168,85,247,0.08);}
+    .step-icon-box.green{border-color:var(--green);color:var(--green);background:rgba(0,255,136,0.08);}
+    .step-icon-box.magenta{border-color:var(--magenta);color:var(--magenta);background:rgba(255,45,120,0.08);}
+    .step-name{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:0.5rem;}
+    .step-desc{color:var(--muted);font-size:0.85rem;line-height:1.6;}
 
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
+    /* USE CASES */
+    .use-cases{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+    .use-card{border-radius:18px;background:var(--card);border:1px solid rgba(255,255,255,0.06);overflow:hidden;transition:all 0.3s;}
+    .use-card:hover{transform:translateY(-4px);border-color:rgba(0,229,255,0.2);}
+    .use-card-visual{height:220px;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+    .use-card-body{padding:1.5rem;}
+    .use-card-icon-row{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.5rem;}
+    .use-card-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;}
+    .use-card-title{font-size:1rem;font-weight:700;color:#fff;}
+    .use-card-desc{font-size:0.85rem;color:var(--muted);line-height:1.6;margin-top:0.3rem;}
 
-        .nav-links a {
-            color: #a0a0b0;
-            text-decoration: none;
-            transition: color 0.3s;
-            cursor: pointer;
-        }
+    /* FEATURE SPLIT */
+    .feature-split{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;}
+    .feature-split.reverse{direction:rtl;}
+    .feature-split.reverse>*{direction:ltr;}
+    .feature-eyebrow{font-size:0.75rem;color:var(--cyan);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem;}
+    .feature-title{font-size:clamp(1.6rem,2.5vw,2.2rem);font-weight:800;color:#fff;margin-bottom:1rem;line-height:1.2;}
+    .feature-desc{color:var(--muted);line-height:1.8;margin-bottom:1.5rem;}
+    .feature-list{list-style:none;display:flex;flex-direction:column;gap:0.6rem;}
+    .feature-list li{display:flex;align-items:center;gap:0.7rem;color:var(--text);font-size:0.9rem;}
+    .feature-list li::before{content:'';width:16px;height:16px;border-radius:50%;background:var(--cyan);display:flex;align-items:center;justify-content:center;flex-shrink:0;background-image:url("data:image/svg+xml,%3Csvg width='10' height='8' viewBox='0 0 10 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4L3.5 6.5L9 1' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center;background-size:10px;}
+    .feature-visual{border-radius:18px;background:linear-gradient(135deg,#0d0d20,#131330);border:1px solid rgba(0,229,255,0.15);padding:2rem;box-shadow:0 0 50px rgba(0,229,255,0.04);}
+    .btn-secondary{display:inline-flex;align-items:center;gap:0.5rem;padding:0.65rem 1.4rem;border:1px solid rgba(255,255,255,0.25);border-radius:8px;color:white;font-size:0.9rem;text-decoration:none;margin-top:1.5rem;transition:all 0.2s;}
+    .btn-secondary:hover{border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.04);}
 
-        .nav-links a:hover {
-            color: #8b5cf6;
-        }
+    /* FEATURES GRID */
+    .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+    .feat-card{border-radius:16px;background:var(--card);border:1px solid rgba(255,255,255,0.06);padding:1.8rem;transition:all 0.3s;}
+    .feat-card:hover{border-color:rgba(0,229,255,0.2);transform:translateY(-3px);}
+    .feat-card-diagram{height:80px;display:flex;align-items:center;justify-content:center;margin-bottom:1.2rem;}
+    .feat-card-icon-row{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem;}
+    .feat-card-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;}
+    .feat-card-name{font-size:0.95rem;font-weight:700;color:#fff;}
+    .feat-card-desc{font-size:0.82rem;color:var(--muted);line-height:1.6;margin-top:0.3rem;}
 
-        .btn-outline {
-            padding: 0.5rem 1rem;
-            border: 1px solid rgba(139, 92, 246, 0.5);
-            border-radius: 8px;
-            background: transparent;
-            color: #8b5cf6;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-        }
+    /* SUPPORT */
+    .support-box{max-width:550px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2.5rem;text-align:center;}
+    .support-title{font-size:1.5rem;font-weight:800;color:#fff;margin-bottom:0.5rem;}
+    .support-sub{color:var(--muted);margin-bottom:2rem;font-size:0.9rem;}
+    .qr-img{width:200px;height:200px;border-radius:16px;margin:0 auto 1rem;display:block;object-fit:cover;border:2px solid rgba(0,229,255,0.2);}
+    .upi-mono{font-family:monospace;color:var(--cyan);font-size:0.9rem;margin:0.3rem 0 1.2rem;}
+    .paypal-label{color:var(--muted);font-size:0.85rem;}
+    .paypal-email{color:var(--purple);font-weight:600;}
 
-        .btn-outline:hover {
-            background: rgba(139, 92, 246, 0.1);
-            border-color: #8b5cf6;
-        }
+    /* FOOTER */
+    footer{text-align:center;padding:2rem;border-top:1px solid rgba(255,255,255,0.05);}
+    footer p{color:var(--muted);font-size:0.85rem;}
+    footer a{color:var(--cyan);text-decoration:none;}
+    footer a:hover{text-decoration:underline;}
 
-        .btn-primary {
-            padding: 0.5rem 1.5rem;
-            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.3s;
-            text-decoration: none;
-            display: inline-block;
-        }
+    /* MINI DEMO */
+    .demo-section{background:var(--bg2);}
+    .demo-container{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;}
+    .demo-editor{background:#0a0a18;border:1px solid rgba(0,229,255,0.2);border-radius:14px;overflow:hidden;}
+    .demo-editor-header{background:#0d0d22;padding:0.7rem 1rem;display:flex;align-items:center;gap:0.5rem;border-bottom:1px solid rgba(255,255,255,0.05);}
+    .dot{width:10px;height:10px;border-radius:50%;}
+    .dot-r{background:#ff5f57;}
+    .dot-y{background:#ffbd2e;}
+    .dot-g{background:#28c840;}
+    .demo-lang{font-size:0.7rem;color:var(--muted);margin-left:auto;}
+    .demo-code{font-family:monospace;font-size:0.82rem;padding:1.2rem;color:#c8c8f0;line-height:1.7;min-height:200px;outline:none;white-space:pre;overflow-x:auto;}
+    .demo-btn{display:block;width:100%;padding:0.7rem;background:linear-gradient(90deg,var(--purple),var(--cyan));color:#000;font-weight:700;font-size:0.9rem;border:none;cursor:pointer;transition:opacity 0.2s;}
+    .demo-btn:hover{opacity:0.85;}
+    .demo-output{background:#0a0a18;border:1px solid rgba(0,229,255,0.2);border-radius:14px;padding:1.5rem;min-height:280px;display:flex;align-items:center;justify-content:center;}
+    .demo-placeholder{text-align:center;color:var(--muted);}
+    .demo-placeholder svg{opacity:0.3;margin-bottom:0.8rem;}
 
-        .btn-primary:hover {
-            transform: scale(1.05);
-        }
+    /* NEON helpers */
+    .neon-cyan{color:var(--cyan);}
+    .neon-green{color:var(--green);}
+    .neon-purple{color:var(--purple);}
+    .neon-magenta{color:var(--magenta);}
 
-        /* Hero Section */
-        .hero {
-            padding: 120px 2rem 80px;
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
-        }
+    /* NODE shapes for SVG */
+    .node-start{fill:#0a2a1a;stroke:var(--green);stroke-width:2;}
+    .node-end{fill:#0a2a1a;stroke:var(--cyan);stroke-width:2;}
+    .node-process{fill:#1a0a2a;stroke:var(--purple);stroke-width:2;}
+    .node-decision{fill:#2a0a1a;stroke:var(--magenta);stroke-width:2;}
+    .node-text{fill:#e8e8ff;font-family:monospace;font-size:11px;}
+    .edge{stroke:var(--cyan);stroke-width:1.5;fill:none;stroke-dasharray:5,3;}
+    .edge-solid{stroke:var(--purple);stroke-width:1.5;fill:none;}
+    .edge-label{fill:var(--muted);font-size:9px;font-family:monospace;}
+    .arrow{fill:var(--cyan);}
 
-        .hero-content h1 {
-            font-size: 3.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #ffffff, #a78bfa);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .hero-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            background: rgba(139, 92, 246, 0.2);
-            border: 1px solid rgba(139, 92, 246, 0.5);
-            border-radius: 20px;
-            font-size: 0.75rem;
-            color: #a78bfa;
-            margin-bottom: 1rem;
-        }
-
-        /* How It Works Section */
-        .how-it-works {
-            max-width: 1200px;
-            margin: 4rem auto;
-            padding: 2rem;
-        }
-
-        .section-title {
-            font-size: 2rem;
-            text-align: center;
-            margin-bottom: 3rem;
-            background: linear-gradient(135deg, #ffffff, #a78bfa);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .steps-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        .step-card {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 20px;
-            padding: 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.3s;
-            text-align: center;
-        }
-
-        .step-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(139, 92, 246, 0.3);
-            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.1);
-        }
-
-        .step-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .step-title {
-            font-size: 1.3rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .step-desc {
-            color: #a0a0b0;
-            line-height: 1.6;
-        }
-
-        /* Features Grid */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .feature-card {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 16px;
-            padding: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        /* Payment Section */
-        .payment-section {
-            max-width: 600px;
-            margin: 4rem auto;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            text-align: center;
-        }
-
-        .qr-container {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-            margin: 2rem 0;
-        }
-
-        .qr-box {
-            text-align: center;
-        }
-
-        .qr-placeholder {
-            width: 180px;
-            height: 180px;
-            background: white;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .upi-id {
-            font-family: monospace;
-            color: #a78bfa;
-            margin-top: 0.5rem;
-        }
-
-        /* Testimonials */
-        .testimonials {
-            max-width: 1200px;
-            margin: 4rem auto;
-            padding: 2rem;
-        }
-
-        .testimonial-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-        }
-
-        .testimonial-card {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 20px;
-            padding: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .testimonial-text {
-            color: #a0a0b0;
-            font-style: italic;
-            margin-bottom: 1rem;
-        }
-
-        .testimonial-author {
-            color: #8b5cf6;
-            font-weight: 600;
-        }
-
-        /* Footer */
-        .footer {
-            text-align: center;
-            padding: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            margin-top: 4rem;
-        }
-
-        .github-link {
-            color: #8b5cf6;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-            .nav-links {
-                display: none;
-            }
-        }
-    </style>
+    @media(max-width:900px){
+      .hero,.demo-container,.feature-split{grid-template-columns:1fr;}
+      .steps-row{grid-template-columns:1fr;}
+      .step-arrow{transform:rotate(90deg);}
+      .use-cases,.feat-grid{grid-template-columns:1fr;}
+      .nav-links{display:none;}
+    }
+  </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo">⚡ Code-Visualizer</div>
-            <div class="nav-links">
-                <a href="#how-it-works">How it works</a>
-                <a href="#features">Features</a>
-                <a href="#testimonials">Testimonials</a>
-                <a href="#support">Support</a>
-                <a href="playground.html" class="btn-primary">Start visualizing</a>
-            </div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="#" class="logo">
+      <div class="logo-icon">⚡</div>
+      Code-Visualizer
+    </a>
+    <div class="nav-links">
+      <a href="#how-it-works">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#playground-nav">Playground</a>
+      <a href="#support">Support</a>
+    </div>
+    <div style="display:flex;gap:0.8rem;align-items:center;">
+      <a href="https://github.com/anshmajumdar121" target="_blank" class="btn-nav-outline">Sign in</a>
+      <a href="playground.html" class="btn-nav-cta">Start visualizing</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section style="padding-top:0;padding-bottom:0;">
+    <div class="hero">
+      <div>
+        <span class="hero-eyebrow">Free for personal projects · No install</span>
+        <h1>See code <span>come alive</span></h1>
+        <p class="hero-sub">Paste any function. Get a clean, interactive flowchart.<br>Step through execution like you're debugging with superpowers.</p>
+        <div class="hero-actions">
+          <a href="playground.html" class="btn-cta">Start visualizing →</a>
+          <a href="#how-it-works" class="btn-ghost">▷ View examples</a>
         </div>
-    </nav>
+        <p class="hero-note">Free for personal projects. No install.</p>
+      </div>
+      <div class="hero-visual">
+        <svg class="flowchart-svg" viewBox="0 0 380 420" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow-cyan" markerWidth="8" markerHeight="8" refX="4" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#00e5ff"/>
+            </marker>
+            <marker id="arrow-purple" markerWidth="8" markerHeight="8" refX="4" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a855f7"/>
+            </marker>
+            <marker id="arrow-magenta" markerWidth="8" markerHeight="8" refX="4" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#ff2d78"/>
+            </marker>
+          </defs>
+          <!-- START -->
+          <ellipse cx="190" cy="35" rx="55" ry="22" class="node-start"/>
+          <text x="190" y="39" class="node-text" text-anchor="middle" fill="#00ff88">START</text>
+          <!-- Edge START->condition -->
+          <line x1="190" y1="57" x2="190" y2="98" stroke="#a855f7" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
+          <!-- CONDITION n <= 1? -->
+          <polygon points="190,100 260,140 190,180 120,140" class="node-decision"/>
+          <text x="190" y="137" class="node-text" text-anchor="middle" fill="#ff2d78">n &lt;= 1?</text>
+          <text x="190" y="150" class="node-text" text-anchor="middle" fill="#888">(condition)</text>
+          <!-- YES label -->
+          <text x="108" y="155" class="edge-label" fill="#00ff88">YES</text>
+          <!-- NO label -->
+          <text x="262" y="155" class="edge-label" fill="#ff2d78">NO</text>
+          <!-- YES path -> return 1 -->
+          <line x1="120" y1="140" x2="60" y2="140" stroke="#00e5ff" stroke-width="1.5"/>
+          <line x1="60" y1="140" x2="60" y2="260" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+          <line x1="60" y1="260" x2="95" y2="260" stroke="#00e5ff" stroke-width="1.5" marker-end="url(#arrow-cyan)"/>
+          <!-- return 1 box -->
+          <rect x="95" y="240" width="100" height="40" rx="6" class="node-process"/>
+          <text x="145" y="265" class="node-text" text-anchor="middle" fill="#e8e8ff">return 1</text>
+          <!-- NO path -> return n*factorial -->
+          <line x1="260" y1="140" x2="310" y2="140" stroke="#a855f7" stroke-width="1.5"/>
+          <line x1="310" y1="140" x2="310" y2="260" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="4,2"/>
+          <line x1="310" y1="260" x2="282" y2="260" stroke="#a855f7" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
+          <!-- return n*factorial box -->
+          <rect x="182" y="240" width="100" height="40" rx="6" class="node-process"/>
+          <text x="232" y="258" class="node-text" text-anchor="middle" fill="#e8e8ff">return n *</text>
+          <text x="232" y="272" class="node-text" text-anchor="middle" fill="#e8e8ff">factorial(n-1)</text>
+          <!-- Both paths -> END -->
+          <line x1="145" y1="280" x2="145" y2="370" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="3,2"/>
+          <line x1="232" y1="280" x2="232" y2="370" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="3,2"/>
+          <line x1="145" y1="370" x2="188" y2="370" stroke="#00e5ff" stroke-width="1.5"/>
+          <line x1="232" y1="370" x2="195" y2="370" stroke="#a855f7" stroke-width="1.5"/>
+          <!-- END -->
+          <ellipse cx="190" cy="395" rx="50" ry="20" class="node-end"/>
+          <line x1="190" y1="370" x2="190" y2="375" stroke="#00e5ff" stroke-width="1.5" marker-end="url(#arrow-cyan)"/>
+          <text x="190" y="399" class="node-text" text-anchor="middle" fill="#00e5ff">END</text>
+        </svg>
+      </div>
+    </div>
+  </section>
 
-    <main>
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="hero-content">
-                <span class="hero-badge">⚡ Systems Thinker | Problem Solver | Builder</span>
-                <h1>Ansh Majumdar</h1>
-                <p style="color: #a0a0b0; font-size: 1.2rem; margin-bottom: 1rem;">
-                    Building scalable systems & data-driven solutions
-                </p>
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
-                    <span class="step-desc" style="background: rgba(139,92,246,0.1); padding: 0.25rem 0.75rem; border-radius: 20px;">Python</span>
-                    <span class="step-desc" style="background: rgba(139,92,246,0.1); padding: 0.25rem 0.75rem; border-radius: 20px;">JavaScript</span>
-                    <span class="step-desc" style="background: rgba(139,92,246,0.1); padding: 0.25rem 0.75rem; border-radius: 20px;">TypeScript</span>
-                    <span class="step-desc" style="background: rgba(139,92,246,0.1); padding: 0.25rem 0.75rem; border-radius: 20px;">React</span>
-                    <span class="step-desc" style="background: rgba(139,92,246,0.1); padding: 0.25rem 0.75rem; border-radius: 20px;">Node.js</span>
-                    <span class="step-desc" style="background: rgba(139,92,246,0.1); padding: 0.25rem 0.75rem; border-radius: 20px;">Rust</span>
-                </div>
-                <div style="margin-top: 2rem;">
-                    <a href="playground.html" class="btn-primary" style="margin-right: 1rem;">Try Code Visualizer →</a>
-                    <a href="https://github.com/anshmajumdar121" target="_blank" class="btn-outline">GitHub Profile</a>
-                </div>
-            </div>
-            <div style="background: rgba(139, 92, 246, 0.1); border-radius: 24px; padding: 2rem; border: 1px solid rgba(139, 92, 246, 0.2);">
-                <pre style="color: #a78bfa; font-family: monospace; font-size: 0.9rem;">
-{
-  "developer": "Ansh Majumdar",
-  "focus": ["systems", "efficiency", "real-world impact"],
-  "minted": "build + break = analyze + rebuild better",
-  "currently": "designing scalable backends & data-driven systems",
-  "driven_by": "problems that actually matter"
-}
-                </pre>
-                <p style="margin-top: 1rem; color: #a0a0b0; font-style: italic;">
-                    "I don't just write code — I architect solutions. Every line has a purpose."
-                </p>
-            </div>
-        </section>
-
-        <!-- How It Works Section -->
-        <section id="how-it-works" class="how-it-works">
-            <h2 class="section-title">How Code-Visualizer Works</h2>
-            <div class="steps-grid">
-                <div class="step-card">
-                    <div class="step-icon">📝</div>
-                    <h3 class="step-title">1. Paste Code</h3>
-                    <p class="step-desc">Drop in Python, JavaScript, Java, C++, or pseudocode. Our parser automatically detects the language.</p>
-                </div>
-                <div class="step-card">
-                    <div class="step-icon">🔍</div>
-                    <h3 class="step-title">2. Parse & Layout</h3>
-                    <p class="step-desc">We build an AST (Abstract Syntax Tree) and generate a clean, readable flowchart automatically.</p>
-                </div>
-                <div class="step-card">
-                    <div class="step-icon">⚡</div>
-                    <h3 class="step-title">3. Explore Steps</h3>
-                    <p class="step-desc">Click any node to see variable state, step through execution, and understand the logic flow.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Features Section -->
-        <section id="features" class="how-it-works">
-            <h2 class="section-title">Everything You Need</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🌐</div>
-                    <h3>Multi-Language</h3>
-                    <p class="step-desc">Python, JavaScript, Java, C++, and more coming soon</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📐</div>
-                    <h3>Auto-Layout</h3>
-                    <p class="step-desc">No manual positioning. The graph stays readable always.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🐛</div>
-                    <h3>Step Debugger</h3>
-                    <p class="step-desc">Walk through loops and branches line by line.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📤</div>
-                    <h3>Export & Share</h3>
-                    <p class="step-desc">PNG, SVG, or a shareable link to send to teammates.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">💬</div>
-                    <h3>Annotations</h3>
-                    <p class="step-desc">Add notes to any node to explain intent.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
-                    <h3>Secure by Default</h3>
-                    <p class="step-desc">Code is processed in-memory. Nothing stored unless you save.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Testimonials -->
-        <section id="testimonials" class="testimonials">
-            <h2 class="section-title">Loved by Learners</h2>
-            <div class="testimonial-grid">
-                <div class="testimonial-card">
-                    <p class="testimonial-text">"I finally understood recursion after seeing it as a diagram. This tool is a game-changer!"</p>
-                    <p class="testimonial-author">— Avery L., CS Student</p>
-                </div>
-                <div class="testimonial-card">
-                    <p class="testimonial-text">"My study group uses this to review algorithms every week. Way faster than drawing boxes."</p>
-                    <p class="testimonial-author">— Jordan P., Software Engineer</p>
-                </div>
-                <div class="testimonial-card">
-                    <p class="testimonial-text">"Onboarding new developers is so much easier with visual flowcharts. Highly recommend!"</p>
-                    <p class="testimonial-author">— Sam T., Tech Lead</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Payment Section -->
-        <section id="support" class="payment-section">
-            <h2 style="margin-bottom: 1rem;">Support the Project</h2>
-            <p style="color: #a0a0b0; margin-bottom: 1rem;">Scan to contribute any amount — every contribution helps improve Code-Visualizer</p>
-            
-            <div class="qr-container">
-                <div class="qr-box">
-                    <div class="qr-placeholder">
-                        <svg width="160" height="160" viewBox="0 0 160 160">
-                            <rect width="160" height="160" fill="white" rx="8"/>
-                            <rect x="30" y="30" width="100" height="100" fill="black"/>
-                            <rect x="35" y="35" width="20" height="20" fill="white"/>
-                            <rect x="105" y="35" width="20" height="20" fill="white"/>
-                            <rect x="35" y="105" width="20" height="20" fill="white"/>
-                            <rect x="105" y="105" width="20" height="20" fill="white"/>
-                            <text x="50" y="145" fill="black" font-size="10" font-family="monospace">UPI QR</text>
-                        </svg>
-                    </div>
-                    <p class="upi-id">majumdar82@okhdfcbank</p>
-                </div>
-            </div>
-            
-            <p style="margin-top: 1rem;">📧 PayPal: <strong style="color: #a78bfa;">majumdar82@gm <!-- update -->ail.com</strong></p>
-            <p style="margin-top: 0.5rem; font-size: 0.75rem; color: #6b7280;">Your support keeps this project alive and free for everyone ❤️</p>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <p>Made with ❤️ by <strong>Ansh Majumdar</strong></p>
-        <div style="margin-top: 0.5rem;">
-            <a href="https://github.com/anshmajumdar121" target="_blank" class="github-link">
-                🔗 GitHub: github.com/anshmajumdar121
-            </a>
+  <!-- HOW IT WORKS -->
+  <section id="how-it-works">
+    <div class="section-inner">
+      <h2 class="section-title">Three steps to clarity</h2>
+      <p class="section-sub">From code to flowchart in seconds — no configuration needed.</p>
+      <div class="steps-row">
+        <div class="step-card">
+          <div class="step-icon-box purple">&lt;&gt;</div>
+          <div class="step-name">Paste code</div>
+          <div class="step-desc">Drop in Python, JS, or pseudocode. Language auto-detected.</div>
         </div>
-        <p style="margin-top: 1rem; font-size: 0.75rem; color: #6b7280;">
-            © 2026 Code-Visualizer | Open Source | Free for everyone
-        </p>
-    </footer>
+        <div class="step-arrow">—→</div>
+        <div class="step-card active-step">
+          <div class="step-icon-box green">⎇</div>
+          <div class="step-name">Parse &amp; layout</div>
+          <div class="step-desc">We build the flowchart automatically from your AST.</div>
+        </div>
+        <div class="step-arrow">—→</div>
+        <div class="step-card">
+          <div class="step-icon-box magenta">👣</div>
+          <div class="step-name">Explore steps</div>
+          <div class="step-desc">Click any step to see state. Step forward or back.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- USE CASES -->
+  <section style="background:var(--bg2);">
+    <div class="section-inner">
+      <h2 class="section-title">Built for learners and builders</h2>
+      <p class="section-sub">Whether you're studying, prepping, or shipping — this is your visual superpower.</p>
+      <div class="use-cases">
+        <!-- CS Students -->
+        <div class="use-card">
+          <div class="use-card-visual">
+            <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" width="100%">
+              <defs><marker id="a1" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#a855f7"/></marker></defs>
+              <!-- recursion tree f(5) -->
+              <circle cx="100" cy="25" r="18" fill="#1a0a2a" stroke="#a855f7" stroke-width="1.5"/>
+              <text x="100" y="29" text-anchor="middle" font-size="10" fill="#a855f7" font-family="monospace">f(5)</text>
+              <line x1="87" y1="40" x2="65" y2="65" stroke="#00e5ff" stroke-width="1.2" marker-end="url(#a1)"/>
+              <line x1="113" y1="40" x2="135" y2="65" stroke="#00e5ff" stroke-width="1.2" marker-end="url(#a1)"/>
+              <circle cx="60" cy="78" r="16" fill="#1a0a2a" stroke="#a855f7" stroke-width="1.5"/>
+              <text x="60" y="82" text-anchor="middle" font-size="9" fill="#a855f7" font-family="monospace">f(4)</text>
+              <circle cx="140" cy="78" r="16" fill="#1a0a2a" stroke="#a855f7" stroke-width="1.5"/>
+              <text x="140" y="82" text-anchor="middle" font-size="9" fill="#a855f7" font-family="monospace">f(3)</text>
+              <line x1="50" y1="92" x2="35" y2="115" stroke="#00e5ff" stroke-width="1" marker-end="url(#a1)"/>
+              <line x1="70" y1="92" x2="82" y2="115" stroke="#00e5ff" stroke-width="1" marker-end="url(#a1)"/>
+              <circle cx="30" cy="126" r="14" fill="#1a0a2a" stroke="#a855f7" stroke-width="1.5"/>
+              <text x="30" y="130" text-anchor="middle" font-size="8" fill="#a855f7" font-family="monospace">f(3)</text>
+              <circle cx="87" cy="126" r="14" fill="#1a0a2a" stroke="#a855f7" stroke-width="1.5"/>
+              <text x="87" y="130" text-anchor="middle" font-size="8" fill="#a855f7" font-family="monospace">f(2)</text>
+            </svg>
+          </div>
+          <div class="use-card-body">
+            <div class="use-card-icon-row">
+              <div class="use-card-icon" style="background:rgba(168,85,247,0.15);">🎓</div>
+              <div class="use-card-title">CS Students</div>
+            </div>
+            <div class="use-card-desc">Turn lectures into interactive notes. Finally see recursion.</div>
+          </div>
+        </div>
+        <!-- Interview Prep -->
+        <div class="use-card">
+          <div class="use-card-visual">
+            <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" width="100%">
+              <defs><marker id="a2" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#00ff88"/></marker></defs>
+              <!-- BST -->
+              <rect x="75" y="10" width="50" height="30" rx="5" fill="#0a2a1a" stroke="#00ff88" stroke-width="1.5"/>
+              <text x="100" y="30" text-anchor="middle" font-size="14" fill="#00ff88" font-family="monospace" font-weight="bold">50</text>
+              <line x1="80" y1="40" x2="55" y2="68" stroke="#00e5ff" stroke-width="1.2" marker-end="url(#a2)"/>
+              <line x1="120" y1="40" x2="145" y2="68" stroke="#00e5ff" stroke-width="1.2" marker-end="url(#a2)"/>
+              <rect x="25" y="68" width="45" height="28" rx="5" fill="#0a2a1a" stroke="#00ff88" stroke-width="1.5"/>
+              <text x="47" y="87" text-anchor="middle" font-size="13" fill="#00ff88" font-family="monospace" font-weight="bold">25</text>
+              <rect x="130" y="68" width="45" height="28" rx="5" fill="#0a2a1a" stroke="#00ff88" stroke-width="1.5"/>
+              <text x="152" y="87" text-anchor="middle" font-size="13" fill="#00ff88" font-family="monospace" font-weight="bold">75</text>
+              <line x1="37" y1="96" x2="22" y2="118" stroke="#00e5ff" stroke-width="1.2" marker-end="url(#a2)"/>
+              <line x1="58" y1="96" x2="68" y2="118" stroke="#00e5ff" stroke-width="1.2" marker-end="url(#a2)"/>
+              <rect x="5" y="118" width="35" height="26" rx="5" fill="#0a2a1a" stroke="#00ff88" stroke-width="1.5"/>
+              <text x="22" y="135" text-anchor="middle" font-size="12" fill="#00ff88" font-family="monospace" font-weight="bold">10</text>
+              <rect x="50" y="118" width="35" height="26" rx="5" fill="#0a2a1a" stroke="#00ff88" stroke-width="1.5"/>
+              <text x="67" y="135" text-anchor="middle" font-size="12" fill="#00ff88" font-family="monospace" font-weight="bold">35</text>
+            </svg>
+          </div>
+          <div class="use-card-body">
+            <div class="use-card-icon-row">
+              <div class="use-card-icon" style="background:rgba(0,255,136,0.15);">💼</div>
+              <div class="use-card-title">Interview Prep</div>
+            </div>
+            <div class="use-card-desc">Walk through solutions out loud with a clear map.</div>
+          </div>
+        </div>
+        <!-- Code Review -->
+        <div class="use-card">
+          <div class="use-card-visual">
+            <svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" width="100%">
+              <defs><marker id="a3" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#ff2d78"/></marker></defs>
+              <ellipse cx="100" cy="25" rx="42" ry="18" fill="#2a0a1a" stroke="#ff2d78" stroke-width="1.5"/>
+              <text x="100" y="29" text-anchor="middle" font-size="11" fill="#ff2d78" font-family="monospace">START</text>
+              <line x1="100" y1="43" x2="100" y2="58" stroke="#ff2d78" stroke-width="1.5" marker-end="url(#a3)"/>
+              <rect x="62" y="58" width="76" height="34" rx="6" fill="#1a0a2a" stroke="#ff2d78" stroke-width="1.5"/>
+              <text x="100" y="73" text-anchor="middle" font-size="10" fill="#e8e8ff" font-family="monospace">Validate</text>
+              <text x="100" y="85" text-anchor="middle" font-size="10" fill="#e8e8ff" font-family="monospace">Input</text>
+              <line x1="100" y1="92" x2="100" y2="108" stroke="#ff2d78" stroke-width="1.5" marker-end="url(#a3)"/>
+              <polygon points="100,108 145,130 100,152 55,130" fill="#2a0a1a" stroke="#ff2d78" stroke-width="1.5"/>
+              <text x="100" y="134" text-anchor="middle" font-size="9" fill="#ff2d78" font-family="monospace">Valid?</text>
+              <text x="52" y="128" font-size="8" fill="#ff2d78" font-family="monospace">NO</text>
+              <text x="147" y="128" font-size="8" fill="#00ff88" font-family="monospace">YES</text>
+              <line x1="55" y1="130" x2="20" y2="130" stroke="#ff2d78" stroke-width="1.2"/>
+              <rect x="5" y="120" width="15" height="20" rx="3" fill="#2a0a1a" stroke="#ff2d78" stroke-width="1"/>
+              <text x="12" y="133" text-anchor="middle" font-size="7" fill="#ff2d78" font-family="monospace">Err</text>
+              <line x1="145" y1="130" x2="180" y2="130" stroke="#00ff88" stroke-width="1.2"/>
+              <rect x="180" y="120" width="15" height="20" rx="3" fill="#0a2a1a" stroke="#00ff88" stroke-width="1"/>
+              <text x="187" y="133" text-anchor="middle" font-size="7" fill="#00ff88" font-family="monospace">OK</text>
+            </svg>
+          </div>
+          <div class="use-card-body">
+            <div class="use-card-icon-row">
+              <div class="use-card-icon" style="background:rgba(255,45,120,0.15);">👥</div>
+              <div class="use-card-title">Code Review</div>
+            </div>
+            <div class="use-card-desc">Onboard teammates faster with a visual summary.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURE SPLIT: Logic you can touch -->
+  <section id="features" style="background:var(--bg);">
+    <div class="section-inner">
+      <div class="feature-split">
+        <div>
+          <div class="feature-eyebrow">Interactive Canvas</div>
+          <h2 class="feature-title">Logic you can touch</h2>
+          <p class="feature-desc">Auto-generated flowcharts keep their shape as you edit. Pan, zoom, and step through loops without losing context.</p>
+          <ul class="feature-list">
+            <li>Pan / zoom canvas</li>
+            <li>Step forward / back</li>
+            <li>Variable state panel</li>
+          </ul>
+          <a href="playground.html" class="btn-secondary">Try the playground →</a>
+        </div>
+        <div class="feature-visual">
+          <svg viewBox="0 0 340 320" xmlns="http://www.w3.org/2000/svg" width="100%">
+            <defs>
+              <marker id="b1" markerWidth="8" markerHeight="8" refX="4" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#00e5ff"/></marker>
+              <marker id="b2" markerWidth="8" markerHeight="8" refX="4" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#a855f7"/></marker>
+            </defs>
+            <ellipse cx="170" cy="30" rx="50" ry="18" fill="#0a2a1a" stroke="#00ff88" stroke-width="2"/>
+            <text x="170" y="34" text-anchor="middle" font-size="11" fill="#00ff88" font-family="monospace">START</text>
+            <line x1="170" y1="48" x2="170" y2="68" stroke="#00e5ff" stroke-width="1.5" marker-end="url(#b1)"/>
+            <rect x="110" y="68" width="120" height="36" rx="6" fill="#1a0a2a" stroke="#a855f7" stroke-width="2"/>
+            <text x="170" y="90" text-anchor="middle" font-size="11" fill="#e8e8ff" font-family="monospace">i = 0</text>
+            <!-- loop arrow back -->
+            <path d="M 110 86 C 50 86 50 190 110 190" stroke="#00e5ff" stroke-width="1.5" stroke-dasharray="5,3" fill="none" marker-end="url(#b1)"/>
+            <line x1="170" y1="104" x2="170" y2="125" stroke="#00e5ff" stroke-width="1.5" marker-end="url(#b1)"/>
+            <polygon points="170,126 230,160 170,194 110,160" fill="#2a0a1a" stroke="#ff2d78" stroke-width="2"/>
+            <text x="170" y="157" text-anchor="middle" font-size="9" fill="#ff2d78" font-family="monospace">i &lt; n?</text>
+            <text x="170" y="170" text-anchor="middle" font-size="8" fill="#888" font-family="monospace">(loop cond.)</text>
+            <text x="88" y="165" font-size="8" fill="#ff2d78" font-family="monospace">NO</text>
+            <text x="233" y="165" font-size="8" fill="#00ff88" font-family="monospace">YES</text>
+            <line x1="230" y1="160" x2="270" y2="160" stroke="#00ff88" stroke-width="1.5"/>
+            <line x1="270" y1="160" x2="270" y2="225" stroke="#00ff88" stroke-width="1.5" marker-end="url(#b1)"/>
+            <rect x="210" y="225" width="120" height="35" rx="6" fill="#1a0a2a" stroke="#a855f7" stroke-width="2"/>
+            <text x="270" y="247" text-anchor="middle" font-size="11" fill="#e8e8ff" font-family="monospace">process(arr[i])</text>
+            <line x1="270" y1="260" x2="270" y2="285" stroke="#a855f7" stroke-width="1.5" marker-end="url(#b2)"/>
+            <rect x="210" y="285" width="120" height="30" rx="6" fill="#1a0a2a" stroke="#a855f7" stroke-width="2"/>
+            <text x="270" y="305" text-anchor="middle" font-size="11" fill="#e8e8ff" font-family="monospace">i = i + 1</text>
+            <line x1="110" y1="160" x2="60" y2="160" stroke="#ff2d78" stroke-width="1.5"/>
+            <line x1="60" y1="160" x2="60" y2="295" stroke="#ff2d78" stroke-width="1.5" marker-end="url(#b1)"/>
+            <ellipse cx="100" cy="305" rx="40" ry="16" fill="#0a2a1a" stroke="#00e5ff" stroke-width="2"/>
+            <text x="100" y="309" text-anchor="middle" font-size="11" fill="#00e5ff" font-family="monospace">END</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES GRID -->
+  <section id="playground-nav" style="background:var(--bg2);">
+    <div class="section-inner">
+      <h2 class="section-title">Everything that matters</h2>
+      <p class="section-sub">Every feature designed to make code logic effortless to understand.</p>
+      <div class="feat-grid">
+        <div class="feat-card">
+          <div class="feat-card-diagram">
+            <svg viewBox="0 0 160 70" width="100%">
+              <rect x="10" y="20" width="40" height="30" rx="5" fill="#1a0a2a" stroke="#a855f7" stroke-width="1.5"/>
+              <polygon points="72,35 82,25 92,35 82,45" fill="#2a0a1a" stroke="#a855f7" stroke-width="1.5"/>
+              <rect x="110" y="20" width="40" height="30" rx="5" fill="#1a0a2a" stroke="#a855f7" stroke-width="1.5"/>
+              <line x1="50" y1="35" x2="70" y2="35" stroke="#00e5ff" stroke-width="1.5"/>
+              <line x1="94" y1="35" x2="110" y2="35" stroke="#00e5ff" stroke-width="1.5"/>
+              <circle cx="15" cy="35" r="3" fill="#a855f7"/>
+              <circle cx="148" cy="35" r="3" fill="#00e5ff"/>
+            </svg>
+          </div>
+          <div class="feat-card-icon-row">
+            <div class="feat-card-icon" style="background:rgba(168,85,247,0.15);">🌐</div>
+            <div class="feat-card-name">Multi-language</div>
+          </div>
+          <div class="feat-card-desc">Python, JavaScript, Java, C++, and more.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-diagram">
+            <svg viewBox="0 0 160 70" width="100%">
+              <rect x="10" y="20" width="40" height="30" rx="5" fill="#0a2a1a" stroke="#00ff88" stroke-width="1.5"/>
+              <polygon points="72,35 82,25 92,35 82,45" fill="#0a2a1a" stroke="#00ff88" stroke-width="1.5"/>
+              <rect x="110" y="20" width="40" height="30" rx="5" fill="#0a2a1a" stroke="#00ff88" stroke-width="1.5"/>
+              <line x1="50" y1="35" x2="70" y2="35" stroke="#00e5ff" stroke-width="1.5"/>
+              <line x1="94" y1="35" x2="110" y2="35" stroke="#00e5ff" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <div class="feat-card-icon-row">
+            <div class="feat-card-icon" style="background:rgba(0,255,136,0.15);">📐</div>
+            <div class="feat-card-name">Auto-layout</div>
+          </div>
+          <div class="feat-card-desc">No manual positioning. The graph stays readable.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-diagram">
+            <svg viewBox="0 0 160 70" width="100%">
+              <rect x="10" y="20" width="40" height="30" rx="5" fill="#2a0a1a" stroke="#ff2d78" stroke-width="1.5"/>
+              <polygon points="72,35 82,25 92,35 82,45" fill="#2a0a1a" stroke="#ff2d78" stroke-width="1.5"/>
+              <rect x="110" y="20" width="40" height="30" rx="5" fill="#2a0a1a" stroke="#ff2d78" stroke-width="1.5"/>
+              <line x1="50" y1="35" x2="70" y2="35" stroke="#ff2d78" stroke-width="1.5"/>
+              <line x1="94" y1="35" x2="110" y2="35" stroke="#ff2d78" stroke-width="1.5"/>
+              <circle cx="10" cy="30" r="4" fill="#ff2d78" opacity="0.7"/>
+              <circle cx="148" cy="40" r="4" fill="#ff2d78" opacity="0.7"/>
+            </svg>
+          </div>
+          <div class="feat-card-icon-row">
+            <div class="feat-card-icon" style="background:rgba(255,45,120,0.15);">🐛</div>
+            <div class="feat-card-name">Step debugger</div>
+          </div>
+          <div class="feat-card-desc">Walk through loops and branches line by line.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-diagram">
+            <svg viewBox="0 0 160 70" width="100%">
+              <rect x="10" y="20" width="40" height="30" rx="5" fill="#0a2020" stroke="#00e5ff" stroke-width="1.5"/>
+              <polygon points="72,35 82,25 92,35 82,45" fill="#0a2020" stroke="#00e5ff" stroke-width="1.5"/>
+              <rect x="110" y="20" width="40" height="30" rx="5" fill="#0a2020" stroke="#00e5ff" stroke-width="1.5"/>
+              <line x1="50" y1="35" x2="70" y2="35" stroke="#00e5ff" stroke-width="1.5"/>
+              <line x1="94" y1="35" x2="110" y2="35" stroke="#00e5ff" stroke-width="1.5"/>
+              <path d="M 148 10 L 158 6 L 155 16 z" fill="#00e5ff" opacity="0.8"/>
+            </svg>
+          </div>
+          <div class="feat-card-icon-row">
+            <div class="feat-card-icon" style="background:rgba(0,229,255,0.15);">📤</div>
+            <div class="feat-card-name">Export &amp; share</div>
+          </div>
+          <div class="feat-card-desc">PNG, SVG, or a link you can send to a teammate.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-diagram">
+            <svg viewBox="0 0 160 70" width="100%">
+              <rect x="10" y="20" width="40" height="30" rx="5" fill="#1a1a0a" stroke="#ffcc00" stroke-width="1.5"/>
+              <polygon points="72,35 82,25 92,35 82,45" fill="#1a1a0a" stroke="#ffcc00" stroke-width="1.5"/>
+              <rect x="110" y="20" width="40" height="30" rx="5" fill="#1a1a0a" stroke="#ffcc00" stroke-width="1.5"/>
+              <line x1="50" y1="35" x2="70" y2="35" stroke="#ffcc00" stroke-width="1.5"/>
+              <line x1="94" y1="35" x2="110" y2="35" stroke="#ffcc00" stroke-width="1.5"/>
+              <text x="30" y="38" text-anchor="middle" font-size="8" fill="#ffcc00" font-family="monospace">note</text>
+            </svg>
+          </div>
+          <div class="feat-card-icon-row">
+            <div class="feat-card-icon" style="background:rgba(255,204,0,0.15);">💬</div>
+            <div class="feat-card-name">Annotations</div>
+          </div>
+          <div class="feat-card-desc">Add notes to any node to explain intent.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-card-diagram">
+            <svg viewBox="0 0 160 70" width="100%">
+              <rect x="10" y="20" width="40" height="30" rx="5" fill="#0a2a1a" stroke="#00ff88" stroke-width="1.5"/>
+              <polygon points="72,35 82,25 92,35 82,45" fill="#0a2a1a" stroke="#00ff88" stroke-width="1.5"/>
+              <rect x="110" y="20" width="40" height="30" rx="5" fill="#0a2a1a" stroke="#00ff88" stroke-width="1.5"/>
+              <line x1="50" y1="35" x2="70" y2="35" stroke="#00ff88" stroke-width="1.5"/>
+              <line x1="94" y1="35" x2="110" y2="35" stroke="#00ff88" stroke-width="1.5"/>
+              <path d="M 128 6 L 134 6 L 134 12" stroke="#00ff88" stroke-width="1.5" fill="none"/>
+              <path d="M 128 6 L 122 12 L 128 18 L 134 12" stroke="#00ff88" stroke-width="1" fill="none" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="feat-card-icon-row">
+            <div class="feat-card-icon" style="background:rgba(0,255,136,0.15);">🔒</div>
+            <div class="feat-card-name">Secure by default</div>
+          </div>
+          <div class="feat-card-desc">Code processed in-memory. Nothing stored unless you save.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUPPORT -->
+  <section id="support" style="background:var(--bg);">
+    <div class="section-inner">
+      <div class="support-box">
+        <h2 class="support-title">Support the Project</h2>
+        <p class="support-sub">Scan to contribute — every amount helps keep Code-Visualizer free for everyone.</p>
+        <img src="qr-paypal.png" alt="PayPal QR Code" class="qr-img" onerror="this.style.display='none';document.getElementById('qr-fallback').style.display='block'">
+        <div id="qr-fallback" style="display:none;width:200px;height:200px;background:#111;border-radius:16px;margin:0 auto 1rem;display:none;align-items:center;justify-content:center;border:2px solid rgba(0,229,255,0.2);">
+          <span style="color:var(--muted);font-size:0.8rem;">QR Code</span>
+        </div>
+        <p class="paypal-label">PayPal</p>
+        <p class="upi-mono">majumdar82@okhdfcbank</p>
+        <p class="paypal-label">Also via PayPal: <span class="paypal-email">majumdar82@gmail.com</span></p>
+        <p style="margin-top:1rem;font-size:0.72rem;color:var(--muted);">Your support keeps this project alive and free for everyone ❤️</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>Made with ❤️ by <strong>Ansh Majumdar</strong> &nbsp;|&nbsp;
+       <a href="https://github.com/anshmajumdar121" target="_blank">github.com/anshmajumdar121</a>
+    </p>
+    <p style="margin-top:0.4rem;">© 2026 Code-Visualizer · 
+       <a href="https://anshmajumdar121.github.io/code-flow-visualizer/" target="_blank">Live Site</a> ·
+       <a href="playground.html">Playground</a>
+    </p>
+  </footer>
+
+  <script>
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if(target){ e.preventDefault(); target.scrollIntoView({behavior:'smooth'}); }
+      });
+    });
+
+    // Navbar active state
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-links a');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(s => {
+        if(window.scrollY >= s.offsetTop - 100) current = s.id;
+      });
+      navLinks.forEach(a => {
+        a.style.color = a.getAttribute('href') === '#'+current ? '#00e5ff' : '';
+      });
+    });
+  </script>
 </body>
 </html>
