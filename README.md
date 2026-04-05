@@ -19,6 +19,81 @@
 
 ---
 
+
+---
+
+## 🎬 Demo Preview
+
+> **Try it instantly — no install needed.**
+> Paste any Python function and watch it become a flowchart in real time.
+
+<div align="center">
+
+### 📝 Sample Input
+
+```python
+def factorial(n):
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)
+```
+
+### ⬇️ Becomes This Flowchart
+
+<table align="center"><tr><td align="center">
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="420" viewBox="0 0 320 420" style="background:#0d1117;border-radius:12px;border:1px solid #30363d">
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#00e5ff"/>
+    </marker>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- START -->
+  <ellipse cx="160" cy="36" rx="48" ry="20" fill="none" stroke="#00ff88" stroke-width="2" filter="url(#glow)"/>
+  <text x="160" y="41" text-anchor="middle" fill="#00ff88" font-family="monospace" font-size="13" font-weight="bold">START</text>
+  <!-- Arrow START -> condition -->
+  <line x1="160" y1="56" x2="160" y2="86" stroke="#00e5ff" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- CONDITION diamond -->
+  <polygon points="160,90 220,130 160,170 100,130" fill="none" stroke="#ff2d78" stroke-width="2" filter="url(#glow)"/>
+  <text x="160" y="126" text-anchor="middle" fill="#ff2d78" font-family="monospace" font-size="10">n &lt;= 1?</text>
+  <text x="160" y="140" text-anchor="middle" fill="#ff2d78" font-family="monospace" font-size="9">(condition)</text>
+  <!-- YES label -->
+  <text x="84" y="142" text-anchor="middle" fill="#00ff88" font-family="monospace" font-size="10">YES</text>
+  <!-- NO label -->
+  <text x="236" y="142" text-anchor="middle" fill="#a855f7" font-family="monospace" font-size="10">NO</text>
+  <!-- YES path -> return 1 -->
+  <line x1="100" y1="130" x2="56" y2="130" stroke="#00e5ff" stroke-width="1.5"/>
+  <line x1="56" y1="130" x2="56" y2="230" stroke="#00e5ff" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- return 1 box -->
+  <rect x="16" y="230" width="82" height="36" rx="6" fill="none" stroke="#a855f7" stroke-width="2" filter="url(#glow)"/>
+  <text x="57" y="252" text-anchor="middle" fill="#a855f7" font-family="monospace" font-size="11">return 1</text>
+  <!-- NO path -> return n*factorial -->
+  <line x1="220" y1="130" x2="264" y2="130" stroke="#00e5ff" stroke-width="1.5"/>
+  <line x1="264" y1="130" x2="264" y2="230" stroke="#00e5ff" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- return n*f(n-1) box -->
+  <rect x="202" y="230" width="108" height="44" rx="6" fill="none" stroke="#a855f7" stroke-width="2" filter="url(#glow)"/>
+  <text x="256" y="249" text-anchor="middle" fill="#a855f7" font-family="monospace" font-size="10">return n *</text>
+  <text x="256" y="263" text-anchor="middle" fill="#a855f7" font-family="monospace" font-size="10">factorial(n-1)</text>
+  <!-- Both paths -> END -->
+  <line x1="57" y1="266" x2="57" y2="360" stroke="#00e5ff" stroke-width="1.5"/>
+  <line x1="57" y1="360" x2="140" y2="360" stroke="#00e5ff" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="256" y1="274" x2="256" y2="360" stroke="#00e5ff" stroke-width="1.5"/>
+  <line x1="256" y1="360" x2="180" y2="360" stroke="#00e5ff" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- END -->
+  <ellipse cx="160" cy="360" rx="40" ry="20" fill="none" stroke="#00ff88" stroke-width="2" filter="url(#glow)"/>
+  <text x="160" y="365" text-anchor="middle" fill="#00ff88" font-family="monospace" font-size="13" font-weight="bold">END</text>
+</svg>
+</td></tr></table>
+
+<br/>
+
+[![▶ Try it Live in the Playground](https://img.shields.io/badge/▶_Try_it_Live-Open_Playground-00e5ff?style=for-the-badge&labelColor=0d1117)](https://anshmajumdar121.github.io/code-flow-visualizer/playground.html)
+
+</div>
+
 ## 📖 About
 
 **Code Flow Visualizer** is a fully client-side, browser-based tool that converts your code into clean, interactive flowcharts in real time. No backend. No installation. Just open and start visualizing.
